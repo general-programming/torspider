@@ -2,7 +2,7 @@ import re
 import json
 from spidercommon.db import sm, Page, Domain
 from lxml import etree
-from io import StringIO
+from io import BytesIO
 from urllib.parse import urlparse
 from collections import defaultdict
 
@@ -29,7 +29,10 @@ for page_domain_id, page_content, page_url in db.query(Page.domain_id, Page.cont
         })
         used_domains.add(page_domain_id)
 
-    tree = etree.parse(StringIO(page_content), htmlparser)
+    if isinstance(page_content, str):
+        page_content = page_content.encode("utf8")
+
+    tree = etree.parse(BytesIO(page_content), htmlparser)
     links = tree.xpath('//a/@href')
     for link in links:
         parsed_url = urlparse(link)
@@ -60,6 +63,10 @@ for page_domain_id, page_content, page_url in db.query(Page.domain_id, Page.cont
 # Construct vis data.
 for parent_node, child_link_list in link_iters.items():
     for child_link, child_count in child_link_list.items():
+        # Prevent self looping.
+        if parent_node == child_link:
+            continue
+
         edges.append({
             "from": parent_node,
             "to": child_link,
@@ -70,5 +77,7 @@ vis_data = {
     "nodes": nodes,
     "edges": edges
 }
-with open("vis_data.json", "w+") as f:
+with open("data.js", "w+") as f:
+    f.write("var data = ")
     json.dump(vis_data, f)
+    f.write(";")

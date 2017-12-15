@@ -1,4 +1,15 @@
-#graph {
+html, body, .wrapper, #graph {
     height: 100%;
     width: 100%;
+}
+
+.vis-network {
+    background-color: #000;
+}
+
+.vis-configuration-wrapper {
+    max-height: 250px;
+    position: absolute;
+    top: 0;
+    right: 0;
 }
