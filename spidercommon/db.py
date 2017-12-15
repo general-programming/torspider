@@ -2,7 +2,6 @@
 import datetime
 import os
 import re
-from urllib.parse import urlparse
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Unicode, UnicodeText, ARRAY, create_engine, and_
 from sqlalchemy.dialects.postgresql import JSONB
@@ -10,6 +9,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, scoped_session, sessionmaker, validates
 from sqlalchemy.schema import Index
 from functools import wraps
+
+from spidercommon.urls import ParsedURL
 
 debug = os.environ.get('DEBUG', False)
 
@@ -87,9 +88,8 @@ class Page(Base):
 
     @staticmethod
     def is_frontpage_url(url):
-        parsed_url = urlparse(url)
-        path  = '/' if parsed_url.path=='' else parsed_url.path
-        if path == '/':
+        parsed = ParsedURL(url)
+        if parsed.path == '/':
             return True
 
         return False
@@ -138,17 +138,8 @@ class Domain(Base):
 
     @classmethod
     def find_stub_by_url(cls, url, db):
-        parsed_url = urlparse(url)
-        host = parsed_url.hostname
-        port = parsed_url.port
-        ssl  = parsed_url.scheme == "https://"
-        if not port:
-            if ssl:
-                port = 443
-            else:
-                port = 80
-
-        return cls.find_stub(host, port, ssl, db)
+        parsed = ParsedURL(url)
+        return cls.find_stub(parsed.host, parsed.port, parsed.secure, db)
 
     @property
     def is_subdomain(self):
@@ -162,9 +153,8 @@ class Domain(Base):
             return False
 
         try:
-            parsed_url = urlparse(url)
-            host = parsed_url.hostname
-            if re.match("[a-zA-Z0-9.]+\.onion$", host):
+            parsed_url = ParsedURL(url)
+            if re.match("[a-zA-Z0-9.]+\.onion$", parsed_url.host):
                 return True
             else:
                 return False

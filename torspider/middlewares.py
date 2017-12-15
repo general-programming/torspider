@@ -6,12 +6,12 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 import logging
-from urllib.parse import urlparse
 from collections import defaultdict
 from scrapy import signals
 from scrapy.exceptions import IgnoreRequest
 
 from spidercommon.db import Domain, db_session
+from spidercommon.urls import ParsedURL
 
 class FilterDomainByPageLimitMiddleware(object):
     def __init__(self, max_pages):
@@ -29,11 +29,10 @@ class FilterDomainByPageLimitMiddleware(object):
         return o
 
     def process_request(self, request, spider):
-        parsed_url = urlparse(request.url)
-        host = parsed_url.hostname
-        if self.counter[host] < self.max_pages:
-            self.counter[host] += 1
-            spider.logger.info('Page count is %d for %s' % (self.counter[host], host))
+        parsed = ParsedURL(request.url)
+        if self.counter[parsed.host] < self.max_pages:
+            self.counter[parsed.host] += 1
+            spider.logger.info('Page count is %d for %s' % (self.counter[parsed.host], parsed.host))
             return None
         else:
             raise IgnoreRequest('MAX_PAGES_PER_DOMAIN reached, filtered %s' % request.url)
@@ -52,9 +51,8 @@ class FilterTooManySubdomainsMiddleware(object):
         if not Domain.is_onion_url(request.url):
             return None
 
-        parsed_url = urlparse(request.url)
-        host = parsed_url.hostname
-        subdomains = host.count(".")
+        parsed = ParsedURL(request.url)
+        subdomains = parsed.host.count(".")
         if subdomains > 2:
             raise IgnoreRequest('Too many subdomains (%d > 2)' % subdomains)
 

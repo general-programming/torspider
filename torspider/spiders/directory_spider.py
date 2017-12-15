@@ -5,11 +5,11 @@ import timeout_decorator
 from datetime import datetime, timedelta
 import random
 import re
-from urllib.parse import urlparse
 
 from sqlalchemy import and_
 
 from spidercommon.db import db_session, Page, Domain
+from spidercommon.urls import ParsedURL
 
 class DirectorySpider(scrapy.Spider):
     name = "tor"
@@ -59,18 +59,17 @@ class DirectorySpider(scrapy.Spider):
             pass
 
         # Get tor URL "hostname"
-        parsed_url = urlparse(response.url)
-        host = parsed_url.hostname
+        parsed = ParsedURL(response.url)
 
         # Skip directories that are made by scrapping.
-        if host in self.scrap_directories:
+        if parsed.host in self.scrap_directories:
             return
 
         self.log('Got %s (%s)' % (response.url, title))
         is_frontpage = Page.is_frontpage_request(response.request)
         size = len(response.body)
         
-        page, domain = self.update_page_info(response.url, host, title, response.status, response.text, is_frontpage, size, db)
+        page, domain = self.update_page_info(response.url, parsed.host, title, response.status, response.text, is_frontpage, size, db)
         if not page:
             return
 
@@ -109,17 +108,17 @@ class DirectorySpider(scrapy.Spider):
         link_to_list = []
         self.log("Finding links...")
 
-        if host not in DirectorySpider.spider_exclude:
+        if parsed.host not in DirectorySpider.spider_exclude:
             for url in response.xpath('//a/@href').extract():
                 fullurl = response.urljoin(url)
                 yield scrapy.Request(fullurl, callback=self.parse)
                 if page.got_server_response and Domain.is_onion_url(fullurl):
                     try:
-                        parsed_link = urlparse(fullurl)
+                        parsed_link = ParsedURL(fullurl)
                     except:
                         continue
-                    link_host = parsed_link.hostname
-                    if host != link_host:
+                    link_host = parsed_link.host
+                    if parsed.host != link_host:
                         link_to_list.append(fullurl)
 
             self.log("link_to_list %s" % link_to_list)
@@ -140,8 +139,7 @@ class DirectorySpider(scrapy.Spider):
             return False
 
         now = datetime.now()
-        parsed_url = urlparse(url)
-        path = '/' if parsed_url.path == '' else parsed_url.path
+        parsed = ParsedURL(url)
 
         # Get or create domain and update info.
         domain = Domain.find_stub_by_url(url, db)
@@ -155,7 +153,7 @@ class DirectorySpider(scrapy.Spider):
         page = db.query(Page).filter(Page.url == url).scalar()
 
         if not page:
-            page = Page(url=url, domain_id=domain.id, title=title, status_code=status_code, last_crawl=now, is_frontpage=is_frontpage, size=size, path=path)
+            page = Page(url=url, domain_id=domain.id, title=title, status_code=status_code, last_crawl=now, is_frontpage=is_frontpage, size=size, path=parsed.path)
             db.add(page)
 
         # Update domain information.
