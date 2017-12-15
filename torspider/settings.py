@@ -16,7 +16,6 @@ HTTP_PROXY = 'http://127.0.0.1:8123'
 SPIDER_MODULES = ['torspider.spiders']
 NEWSPIDER_MODULE = 'torspider.spiders'
 
-
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; rv:52.0) Gecko/20100101 Firefox/52.0'
 
@@ -55,7 +54,8 @@ DEFAULT_REQUEST_HEADERS = {
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-  #  'torspider.middlewares.ProxyMiddleware': 400
+    'torspider.middlewares.FilterDomainByPageLimitMiddleware' : 551,
+    'torspider.middlewares.FilterTooManySubdomainsMiddleware' : 550,
 }
 
 # Enable or disable extensions
@@ -70,23 +70,11 @@ DOWNLOADER_MIDDLEWARES = {
 #    'torspider.pipelines.TorspiderPipeline': 300,
 #}
 
-# Enable and configure the AutoThrottle extension (disabled by default)
-# See http://doc.scrapy.org/en/latest/topics/autothrottle.html
-#AUTOTHROTTLE_ENABLED = True
-# The initial download delay
-#AUTOTHROTTLE_START_DELAY = 5
-# The maximum download delay to be set in case of high latencies
-#AUTOTHROTTLE_MAX_DELAY = 60
-# The average number of requests Scrapy should be sending in parallel to
-# each remote server
-#AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
-# Enable showing throttling stats for every response received:
-#AUTOTHROTTLE_DEBUG = False
-
-# Enable and configure HTTP caching (disabled by default)
-# See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings
-#HTTPCACHE_ENABLED = True
-#HTTPCACHE_EXPIRATION_SECS = 0
-#HTTPCACHE_DIR = 'httpcache'
-#HTTPCACHE_IGNORE_HTTP_CODES = []
-#HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+# Our special sauce
+RETRY_TIMES = 1
+DOWNLOAD_TIMEOUT = 90 # XXX: Why is 90 seconds the timeout?
+DEPTH_PRIORITY = 8
+CONCURRENT_REQUESTS = 32
+REACTOR_THREADPOOL_MAXSIZE = 32
+CONCURRENT_REQUESTS_PER_DOMAIN = 4
+RETRY_HTTP_CODES = [500, 502, 503, 504, 408, 400]

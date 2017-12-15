@@ -11,10 +11,9 @@ from sqlalchemy import and_
 
 from spidercommon.db import db_session, Page, Domain
 
-class TorSpider(scrapy.Spider):
+class DirectorySpider(scrapy.Spider):
     name = "tor"
     allowed_domains = ['onion']
-    handle_httpstatus_list = [404, 403, 401, 503, 500, 504, 502, 206]
 
     start_urls = [
         'http://gxamjbnu7uknahng.onion/',
@@ -29,23 +28,10 @@ class TorSpider(scrapy.Spider):
     ]
 
     custom_settings = {
-        'MAX_PAGES_PER_DOMAIN' : 1000,
         # Scrapy
-        'ROBOTSTXT_OBEY': False,
-        'RETRY_TIMES': 1,
-        'RETRY_HTTP_CODES': [],
-        'DOWNLOAD_TIMEOUT': 90,
-        'DEPTH_PRIORITY': 8,
-	    'CONCURRENT_REQUESTS': 16,
-        'REACTOR_THREADPOOL_MAXSIZE': 32,
-        'CONCURRENT_REQUESTS_PER_DOMAIN': 8,
-        'HTTPERROR_ALLOWED_CODES': handle_httpstatus_list,
-        'DOWNLOAD_MAXSIZE': (1024 * 1024)*2,
-        'DOWNLOADER_MIDDLEWARES' : {
-            'torspider.middlewares.FilterDomainByPageLimitMiddleware' : 551,
-            'torspider.middlewares.FilterTooManySubdomainsMiddleware' : 550,
-         },
-        'USER_AGENT': 'Mozilla/5.0 (Windows NT 6.1; rv:52.0) Gecko/20100101 Firefox/52.0'
+        'DOWNLOAD_MAXSIZE': (1024 * 1024) * 2,
+        # Middleware
+        'MAX_PAGES_PER_DOMAIN' : 1000,
     }
 
     scrap_directories = [
@@ -53,7 +39,7 @@ class TorSpider(scrapy.Spider):
     ]
 
     def __init__(self, *args, **kwargs):
-        super(TorSpider, self).__init__(*args, **kwargs)
+        super(DirectorySpider, self).__init__(*args, **kwargs)
 
         if hasattr(self, "passed_url"):
             self.start_urls = [self.passed_url]
@@ -123,7 +109,7 @@ class TorSpider(scrapy.Spider):
         link_to_list = []
         self.log("Finding links...")
 
-        if host not in TorSpider.spider_exclude:
+        if host not in DirectorySpider.spider_exclude:
             for url in response.xpath('//a/@href').extract():
                 fullurl = response.urljoin(url)
                 yield scrapy.Request(fullurl, callback=self.parse)
