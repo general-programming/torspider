@@ -59,7 +59,7 @@ class TorSpider(scrapy.Spider):
 
     @db_session
     def parse(self, response, recent_alive_check=False, db=None):
-        MAX_PARSE_SIZE_KB = 1000
+        MAX_PARSE_SIZE_KB = 2048
 
         # Grab the title of the page.
         title = ''
@@ -135,7 +135,7 @@ class TorSpider(scrapy.Spider):
             self.log("link_to_list %s" % link_to_list)
                 
             if page.got_server_response:
-                small_body = response.body[:(1024*MAX_PARSE_SIZE_KB)]
+                small_body = response.body[:(1024 * MAX_PARSE_SIZE_KB)]
                 links_to = set()
                 for url in link_to_list:
                     link_to = Page.find_stub_by_url(url, db)
