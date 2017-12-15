@@ -13,7 +13,13 @@ from functools import wraps
 
 debug = os.environ.get('DEBUG', False)
 
-engine = create_engine(os.environ["POSTGRES_URL"], convert_unicode=True, pool_recycle=3600)
+engine = create_engine(
+    os.environ["POSTGRES_URL"],
+    convert_unicode=True,
+    pool_recycle=3600,
+    pool_size=25,
+    max_overflow=25
+)
 
 if debug:
     engine.echo = True
