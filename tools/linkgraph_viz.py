@@ -1,11 +1,13 @@
-import re
 import json
-from spidercommon.db import sm, Page, Domain
-from spidercommon.urls import ParsedURL
-from lxml import etree
-from io import BytesIO
 import random
+import re
 from collections import defaultdict
+from io import BytesIO
+
+from lxml import etree
+
+from spidercommon.db import Domain, Page, sm
+from spidercommon.urls import ParsedURL
 
 htmlparser = etree.HTMLParser()
 db = sm()

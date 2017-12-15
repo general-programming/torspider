@@ -2,13 +2,15 @@
 import datetime
 import os
 import re
+from functools import wraps
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Unicode, UnicodeText, ARRAY, create_engine, and_
+from sqlalchemy import (ARRAY, Boolean, Column, DateTime, ForeignKey, Integer,
+                        String, Unicode, UnicodeText, and_, create_engine)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, scoped_session, sessionmaker, validates
+from sqlalchemy.orm import (relationship, scoped_session, sessionmaker,
+                            validates)
 from sqlalchemy.schema import Index
-from functools import wraps
 
 from spidercommon.urls import ParsedURL
 

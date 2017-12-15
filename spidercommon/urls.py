@@ -1,5 +1,6 @@
 from urllib.parse import urlparse
 
+
 class ParsedURL(object):
     """
     Wrapper for urlparse that removes the copy/paste work of hostname, port, ssl, and path.

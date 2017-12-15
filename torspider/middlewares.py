@@ -7,11 +7,13 @@
 
 import logging
 from collections import defaultdict
+
 from scrapy import signals
 from scrapy.exceptions import IgnoreRequest
 
 from spidercommon.db import Domain, db_session
 from spidercommon.urls import ParsedURL
+
 
 class FilterDomainByPageLimitMiddleware(object):
     def __init__(self, max_pages):

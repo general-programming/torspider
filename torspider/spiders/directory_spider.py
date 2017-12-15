@@ -1,15 +1,16 @@
 # Credits to https://github.com/dirtyfilthy/freshonions-torscraper/blob/master/torscraper/spiders/tor_scrapy.py for basic framework
 
-import scrapy
-import timeout_decorator
-from datetime import datetime, timedelta
 import random
 import re
+from datetime import datetime, timedelta
 
+import scrapy
+import timeout_decorator
 from sqlalchemy import and_
 
-from spidercommon.db import db_session, Page, Domain
+from spidercommon.db import Domain, Page, db_session
 from spidercommon.urls import ParsedURL
+
 
 class DirectorySpider(scrapy.Spider):
     name = "tor"
