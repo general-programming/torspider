@@ -24,20 +24,21 @@ print(f"{len(domains_by_id)} domains in DB.")
 link_iters = defaultdict(lambda: defaultdict(lambda: 0))
 used_domains = set()
 
-for page_id, page_domain_id, page_content, page_url in db.query(Page.id, Page.domain_id, Page.content, Page.url).filter(Page.content != ""):
-    if page_id % random.randint(1500, 2000) < 10:
-        print(f"Currently at ID {page_id}.")
-
-    title = f"{domains_by_id[page_domain_id].host}\n{domains_by_id[page_domain_id].title or 'No title.'}"
-    if page_domain_id not in used_domains:
-        nodes.append({
-            "id": domains_by_id[page_domain_id].host + ":" + str(domains_by_id[page_domain_id].port),
-            "label": title
-        })
-        used_domains.add(page_domain_id)
-
+for page in db.query(Page).filter(Page._content != None).order_by(Page.id):
+    page_content = page.content
     if isinstance(page_content, str):
         page_content = page_content.encode("utf8")
+
+    if page.id % 250 == 0:
+        print(f"Currently at ID {page.id}.")
+
+    title = f"{domains_by_id[page.domain_id].host}\n{domains_by_id[page.domain_id].title or 'No title.'}"
+    if page.domain_id not in used_domains:
+        nodes.append({
+            "id": domains_by_id[page.domain_id].host + ":" + str(domains_by_id[page.domain_id].port),
+            "label": title
+        })
+        used_domains.add(page.domain_id)
 
     tree = etree.parse(BytesIO(page_content), htmlparser)
     links = tree.xpath('//a/@href')
@@ -57,7 +58,7 @@ for page_id, page_domain_id, page_content, page_url in db.query(Page.id, Page.do
             continue
 
 
-        link_iters[domains_by_id[page_domain_id].host + ":" + str(domains_by_id[page_domain_id].port)][parsed.host + ":" + str(parsed.port)] += 1
+        link_iters[domains_by_id[page.domain_id].host + ":" + str(domains_by_id[page.domain_id].port)][parsed.host + ":" + str(parsed.port)] += 1
 
 print(f"{len(nodes)} nodes graphed.")
 

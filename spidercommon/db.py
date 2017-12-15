@@ -2,9 +2,11 @@
 import datetime
 import os
 import re
+import brotli
 from functools import wraps
+from typing import Union
 
-from sqlalchemy import (ARRAY, Boolean, Column, DateTime, ForeignKey, Integer,
+from sqlalchemy import (ARRAY, Boolean, Column, DateTime, ForeignKey, Integer, LargeBinary,
                         String, Unicode, UnicodeText, and_, create_engine)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
@@ -67,12 +69,32 @@ class Page(Base):
     size = Column(Integer, default=0)
     links_to = Column(ARRAY(String), default=[])
 
-    content = Column(UnicodeText)
+    _content = Column("content", LargeBinary)
 
     domain = relationship("Domain")
 
+    @property
+    def content(self):
+        if not self._content:
+            return None
+
+        decompressed = brotli.decompress(self._content)
+        try:
+            decompressed = decompressed.decode("utf8")
+        except UnicodeDecodeError:
+            pass
+
+        return decompressed
+
+    @content.setter
+    def content(self, content) -> Union[str, bytes]:
+        if isinstance(content, str):
+            content = content.encode("utf8")
+
+        self._content = brotli.compress(content)
+
     @classmethod
-    def find_stub_by_url(cls, url, db):
+    def find_stub_by_url(cls, url: str, db):
         now = datetime.datetime.now()
         page = db.query(Page).filter(Page.url == url).scalar()
         if not page:

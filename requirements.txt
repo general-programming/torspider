@@ -7,3 +7,4 @@ timeout-decorator
 redis
 hiredis
 scrapy-redis
+brotli
