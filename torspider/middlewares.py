@@ -48,8 +48,7 @@ class FilterTooManySubdomainsMiddleware(object):
         o = cls()
         return o
 
-    @db_session
-    def process_request(self, request, spider, db=None):
+    def process_request(self, request, spider):
         if not Domain.is_onion_url(request.url):
             return None
 
