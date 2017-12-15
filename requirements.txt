@@ -1,0 +1,6 @@
+alembic
+sqlalchemy
+psycopg2
+scrapy
+coloredlogs
+timeout-decorator

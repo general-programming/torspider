@@ -1,0 +1,36 @@
+version: '2.3'
+services:
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis:/data
+    restart: always
+    command: "redis-server --appendonly yes"
+    expose:
+      - 6379
+
+  tor:
+    image: zeta0/alpine-tor:latest
+    restart: always
+    environment:
+      privoxy: 1
+    expose:
+      - 8118
+
+  spider:
+      build:
+          context: .
+      restart: always
+      environment:
+        REDIS_HOST: redis
+        REDIS_PORT: 6379
+        http_proxy: http://tor:8118
+        https_proxy: http://tor:8118
+      env_file: .env
+      command: "scrapy crawl --nolog tor"
+      depends_on:
+        - redis
+        - tor
+volumes:
+  redis:
+    driver: local
