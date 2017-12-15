@@ -3,6 +3,10 @@ html, body, .wrapper, #graph {
     width: 100%;
 }
 
+body {
+    margin: 0;
+}
+
 .vis-network {
     background-color: #000;
 }

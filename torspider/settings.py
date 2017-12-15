@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
+
 # Scrapy settings for torspider project
 #
 # For simplicity, this file contains only settings considered important or
@@ -78,3 +80,9 @@ CONCURRENT_REQUESTS = 32
 REACTOR_THREADPOOL_MAXSIZE = 32
 CONCURRENT_REQUESTS_PER_DOMAIN = 4
 RETRY_HTTP_CODES = [500, 502, 503, 504, 408, 400]
+
+# Redis
+SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+REDIS_HOST = os.environ.get('REDIS_PORT_6379_TCP_ADDR', os.environ.get('REDIS_HOST', '127.0.0.1'))
+REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))

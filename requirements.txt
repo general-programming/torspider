@@ -4,3 +4,6 @@ psycopg2
 scrapy
 coloredlogs
 timeout-decorator
+redis
+hiredis
+scrapy-redis
