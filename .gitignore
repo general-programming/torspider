@@ -103,3 +103,6 @@ virtualenv/
 
 # mypy
 .mypy_cache/
+
+# Cancer
+.DS_Store
