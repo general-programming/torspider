@@ -164,3 +164,9 @@ class Domain(Base):
                 return False
         except:
             return False
+
+
+# Indexes
+Index("index_domain_host", Domain.host)
+Index("index_page_url", Page.url)
+Index("index_page_domain_id", Page.domain_id)

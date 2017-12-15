@@ -54,8 +54,12 @@ class TorSpider(scrapy.Spider):
 
     def __init__(self, *args, **kwargs):
         super(TorSpider, self).__init__(*args, **kwargs)
+
         if hasattr(self, "passed_url"):
             self.start_urls = [self.passed_url]
+        elif hasattr(self, "whole_site"):
+            self.start_requests = [self.whole_site]
+            self.allowed_domains = [self.whole_site]
 
     @db_session
     def parse(self, response, recent_alive_check=False, db=None):
