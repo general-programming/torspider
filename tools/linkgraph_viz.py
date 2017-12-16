@@ -7,6 +7,7 @@ from io import BytesIO
 from lxml import etree
 
 from spidercommon.db import Domain, Page, sm
+from spidercommon.regexes import onion_regex
 from spidercommon.urls import ParsedURL
 
 htmlparser = etree.HTMLParser()
@@ -45,7 +46,7 @@ for page in db.query(Page).filter(Page._content != None).order_by(Page.id):
     for link in links:
         parsed = ParsedURL(link)
 
-        if not re.match("[a-zA-Z0-9.]+\.onion$", parsed.host):
+        if not onion_regex.match(parsed.host):
             continue
 
         # XXX: This is bad.

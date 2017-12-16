@@ -2,18 +2,20 @@
 import datetime
 import os
 import re
-import brotli
 from functools import wraps
 from typing import Union
 
-from sqlalchemy import (ARRAY, Boolean, Column, DateTime, ForeignKey, Integer, LargeBinary,
-                        String, Unicode, UnicodeText, and_, create_engine)
+import brotli
+from sqlalchemy import (ARRAY, Boolean, Column, DateTime, ForeignKey, Integer,
+                        LargeBinary, String, Unicode, UnicodeText, and_,
+                        create_engine)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (relationship, scoped_session, sessionmaker,
                             validates)
 from sqlalchemy.schema import Index
 
+from spidercommon.regexes import onion_regex
 from spidercommon.urls import ParsedURL
 
 debug = os.environ.get('DEBUG', False)
@@ -178,7 +180,7 @@ class Domain(Base):
 
         try:
             parsed_url = ParsedURL(url)
-            if re.match("[a-zA-Z0-9.]+\.onion$", parsed_url.host):
+            if onion_regex.match(parsed_url.host):
                 return True
             else:
                 return False

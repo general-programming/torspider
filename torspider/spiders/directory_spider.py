@@ -6,8 +6,8 @@ from datetime import datetime, timedelta
 
 import scrapy
 import timeout_decorator
-from sqlalchemy import and_
 from scrapy_redis.spiders import RedisSpider
+from sqlalchemy import and_
 
 from spidercommon.db import Domain, Page, db_session
 from spidercommon.urls import ParsedURL
