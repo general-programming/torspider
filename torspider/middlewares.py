@@ -148,7 +148,7 @@ class RedisCustomDupeFilter(BaseDupeFilter):
         bool
         """
         fp = self.request_fingerprint(request)
-        crawl_key = "torspider:crawled:" + self.key + ":" + fp
+        crawl_key = self.key + ":" + fp
 
         # Check for the key's existance.
         if self.server.exists(crawl_key):
