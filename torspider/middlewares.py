@@ -76,7 +76,7 @@ class RedisCustomDupeFilter(BaseDupeFilter):
     This class can also be used with default Scrapy's scheduler.
     """
 
-    def __init__(self, server, spider_name, debug=False):
+    def __init__(self, server, spider_name, debug=False, key=None):
         """Initialize the duplicates filter.
         Parameters
         ----------
@@ -86,6 +86,8 @@ class RedisCustomDupeFilter(BaseDupeFilter):
             Spider name for fingerprint storage prefix.
         debug : bool, optional
             Whether to log filtered requests.
+        key : str, optional
+            Legacy key to keep the spider happy.
         """
         self.server = server
         self.spider_name = spider_name
