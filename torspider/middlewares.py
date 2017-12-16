@@ -76,21 +76,19 @@ class RedisCustomDupeFilter(BaseDupeFilter):
     This class can also be used with default Scrapy's scheduler.
     """
 
-    def __init__(self, server, spider_name, debug=False, key=None):
+    def __init__(self, server, key, debug=False):
         """Initialize the duplicates filter.
         Parameters
         ----------
         server : redis.StrictRedis
             The redis server instance.
-        spider_name : str
+        key : str
             Spider name for fingerprint storage prefix.
         debug : bool, optional
             Whether to log filtered requests.
-        key : str, optional
-            Legacy key to keep the spider happy.
         """
         self.server = server
-        self.spider_name = spider_name
+        self.key = key
         self.debug = debug
         self.logdupes = True
         self.logger = logging.getLogger()
@@ -115,9 +113,9 @@ class RedisCustomDupeFilter(BaseDupeFilter):
         # if scrapy passes spider on open() method this wouldn't be needed
         # TODO: Use SCRAPY_JOB env as default and fallback to timestamp.
         # XXX: The hack of a hack uses a str of an int to remove decimals.
-        spider_name = str(int(time.time()))
+        key = str(int(time.time()))
         debug = settings.getbool('DUPEFILTER_DEBUG')
-        return cls(server, spider_name=spider_name, debug=debug)
+        return cls(server, key=key, debug=debug)
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -139,7 +137,7 @@ class RedisCustomDupeFilter(BaseDupeFilter):
         -------
         str
         """
-        return "torspider:dupekeys:" + self.spider_name
+        return "torspider:dupekeys:" + self.key
 
     def request_seen(self, request):
         """Returns True if request was already seen.
@@ -151,7 +149,7 @@ class RedisCustomDupeFilter(BaseDupeFilter):
         bool
         """
         fp = self.request_fingerprint(request)
-        crawl_key = "torspider:crawled:" + self.spider_name + ":" + fp
+        crawl_key = "torspider:crawled:" + self.key + ":" + fp
 
         # Check for the key's existance.
         if self.server.exists(crawl_key):
@@ -186,9 +184,9 @@ class RedisCustomDupeFilter(BaseDupeFilter):
     def from_spider(cls, spider):
         settings = spider.settings
         server = get_redis_from_settings(settings)
-        spider_name = spider.name
+        key = spider.name
         debug = settings.getbool('DUPEFILTER_DEBUG')
-        return cls(server, spider_name=spider_name, debug=debug)
+        return cls(server, key=key, debug=debug)
 
     def close(self, reason=''):
         """Delete data on close. Called by Scrapy's scheduler.
