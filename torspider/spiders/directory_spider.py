@@ -7,16 +7,17 @@ from datetime import datetime, timedelta
 import scrapy
 import timeout_decorator
 from sqlalchemy import and_
+from scrapy_redis.spiders import RedisSpider
 
 from spidercommon.db import Domain, Page, db_session
 from spidercommon.urls import ParsedURL
 
 
-class DirectorySpider(scrapy.Spider):
+class DirectorySpider(RedisSpider):
     name = "tor"
     allowed_domains = ['onion']
 
-    start_urls = [
+    clean_start_urls = [
         'http://gxamjbnu7uknahng.onion/',
         'http://mijpsrtgf54l7um6.onion/',
         'http://dirnxxdraygbifgc.onion/',
@@ -32,7 +33,10 @@ class DirectorySpider(scrapy.Spider):
         # Scrapy
         'DOWNLOAD_MAXSIZE': (1024 * 1024) * 2,
         # Middleware
-        'MAX_PAGES_PER_DOMAIN' : 1000,
+        'MAX_PAGES_PER_DOMAIN' : 4000,
+        # scrapy_redis middleware
+        'REDIS_START_URLS_AS_SET': True,
+        'REDIS_START_URLS_KEY': 'torspider:urls'
     }
 
     scrap_directories = [
@@ -42,11 +46,12 @@ class DirectorySpider(scrapy.Spider):
     def __init__(self, *args, **kwargs):
         super(DirectorySpider, self).__init__(*args, **kwargs)
 
+        if not self.server.exists("torspider:firstrun"):
+            self.server.set("torspider:firstrun", 1)
+            self.server.sadd("torspider:urls", *self.clean_start_urls)
+
         if hasattr(self, "passed_url"):
-            self.start_urls = [self.passed_url]
-        elif hasattr(self, "whole_site"):
-            self.start_requests = [self.whole_site]
-            self.allowed_domains = [self.whole_site]
+            self.server.sadd("torspider:urls", self.passed_url)
 
     @db_session
     def parse(self, response, recent_alive_check=False, db=None):

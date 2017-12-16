@@ -57,7 +57,6 @@ for page in db.query(Page).filter(Page._content != None).order_by(Page.id):
         if not exists:
             continue
 
-
         link_iters[domains_by_id[page.domain_id].host + ":" + str(domains_by_id[page.domain_id].port)][parsed.host + ":" + str(parsed.port)] += 1
 
 print(f"{len(nodes)} nodes graphed.")
