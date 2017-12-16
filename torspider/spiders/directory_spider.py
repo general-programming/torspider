@@ -39,10 +39,6 @@ class DirectorySpider(RedisSpider):
         'REDIS_START_URLS_KEY': 'torspider:urls'
     }
 
-    scrap_directories = [
-        "zlal32teyptf4tvi.onion"
-    ]
-
     def __init__(self, *args, **kwargs):
         super(DirectorySpider, self).__init__(*args, **kwargs)
 
@@ -66,10 +62,6 @@ class DirectorySpider(RedisSpider):
 
         # Get tor URL "hostname"
         parsed = ParsedURL(response.url)
-
-        # Skip directories that are made by scrapping.
-        if parsed.host in self.scrap_directories:
-            return
 
         self.log('Got %s (%s)' % (response.url, title))
         is_frontpage = Page.is_frontpage_request(response.request)
