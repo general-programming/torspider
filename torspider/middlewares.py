@@ -6,10 +6,15 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 import logging
+import time
 from collections import defaultdict
 
 from scrapy import signals
+from scrapy.dupefilters import BaseDupeFilter
+from scrapy.utils.request import request_fingerprint
 from scrapy.exceptions import IgnoreRequest
+
+from scrapy_redis.connection import get_redis_from_settings
 
 from spidercommon.db import Domain, db_session
 from spidercommon.urls import ParsedURL
@@ -59,6 +64,160 @@ class FilterTooManySubdomainsMiddleware(object):
             raise IgnoreRequest('Too many subdomains (%d > 2)' % subdomains)
 
         return None
+
+
+class RedisCustomDupeFilter(BaseDupeFilter):
+    """
+    See https://github.com/rmax/scrapy-redis/blob/master/src/scrapy_redis/dupefilter.py for original code.
+    Changes are made to ensure that duplicates are done on seperate keys and expire after a day.
+    """
+
+    """Redis-based request duplicates filter.
+    This class can also be used with default Scrapy's scheduler.
+    """
+
+    def __init__(self, server, spider_name, debug=False):
+        """Initialize the duplicates filter.
+        Parameters
+        ----------
+        server : redis.StrictRedis
+            The redis server instance.
+        spider_name : str
+            Spider name for fingerprint storage prefix.
+        debug : bool, optional
+            Whether to log filtered requests.
+        """
+        self.server = server
+        self.spider_name = spider_name
+        self.debug = debug
+        self.logdupes = True
+        self.logger = logging.getLogger()
+
+    @classmethod
+    def from_settings(cls, settings):
+        """Returns an instance from given settings.
+        This uses by default the key ``dupefilter:<timestamp>``. When using the
+        ``scrapy_redis.scheduler.Scheduler`` class, this method is not used as
+        it needs to pass the spider name in the key.
+        Parameters
+        ----------
+        settings : scrapy.settings.Settings
+        Returns
+        -------
+        RFPDupeFilter
+            A RFPDupeFilter instance.
+        """
+        server = get_redis_from_settings(settings)
+        # XXX: This creates one-time key. needed to support to use this
+        # class as standalone dupefilter with scrapy's default scheduler
+        # if scrapy passes spider on open() method this wouldn't be needed
+        # TODO: Use SCRAPY_JOB env as default and fallback to timestamp.
+        # XXX: The hack of a hack uses a str of an int to remove decimals.
+        spider_name = str(int(time.time()))
+        debug = settings.getbool('DUPEFILTER_DEBUG')
+        return cls(server, spider_name=spider_name, debug=debug)
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        """Returns instance from crawler.
+        Parameters
+        ----------
+        crawler : scrapy.crawler.Crawler
+        Returns
+        -------
+        RFPDupeFilter
+            Instance of RFPDupeFilter.
+        """
+        return cls.from_settings(crawler.settings)
+
+    @property
+    def dupes_key(self):
+        """Returns the Redis dupes key of the crawler spider.
+        Returns
+        -------
+        str
+        """
+        return "torspider:dupekeys:" + self.spider_name
+
+    def request_seen(self, request):
+        """Returns True if request was already seen.
+        Parameters
+        ----------
+        request : scrapy.http.Request
+        Returns
+        -------
+        bool
+        """
+        fp = self.request_fingerprint(request)
+        crawl_key = "torspider:crawled:" + self.spider_name + ":" + fp
+
+        # Check for the key's existance.
+        if self.server.exists(crawl_key):
+            return True
+
+        # Create the key if it has never been seen.
+        added = self.server.setex(
+            crawl_key,
+            request.url,
+            60 * 60 * 24
+        )
+
+        self.server.sadd(
+            self.dupes_key,
+            crawl_key
+        )
+
+        return False
+
+    def request_fingerprint(self, request):
+        """Returns a fingerprint for a given request.
+        Parameters
+        ----------
+        request : scrapy.http.Request
+        Returns
+        -------
+        str
+        """
+        return request_fingerprint(request)
+
+    @classmethod
+    def from_spider(cls, spider):
+        settings = spider.settings
+        server = get_redis_from_settings(settings)
+        spider_name = spider.name
+        debug = settings.getbool('DUPEFILTER_DEBUG')
+        return cls(server, spider_name=spider_name, debug=debug)
+
+    def close(self, reason=''):
+        """Delete data on close. Called by Scrapy's scheduler.
+        Parameters
+        ----------
+        reason : str, optional
+        """
+        self.clear()
+
+    def clear(self):
+        """Clears fingerprints data."""
+        keys = self.server.smembers(self.dupes_key)
+        for key in keys:
+            self.server.delete(key)
+
+    def log(self, request, spider):
+        """Logs given request.
+        Parameters
+        ----------
+        request : scrapy.http.Request
+        spider : scrapy.spiders.Spider
+        """
+        if self.debug:
+            msg = "Filtered duplicate request: %(request)s"
+            self.logger.debug(msg, {'request': request}, extra={'spider': spider})
+        elif self.logdupes:
+            msg = ("Filtered duplicate request %(request)s"
+                   " - no more duplicates will be shown"
+                   " (see DUPEFILTER_DEBUG to show all duplicates)")
+            self.logger.debug(msg, {'request': request}, extra={'spider': spider})
+            self.logdupes = False
 
 
 class TorspiderSpiderMiddleware(object):

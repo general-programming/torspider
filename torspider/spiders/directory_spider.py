@@ -39,8 +39,8 @@ class DirectorySpider(RedisSpider):
         'REDIS_START_URLS_KEY': 'torspider:urls'
     }
 
-    def __init__(self, *args, **kwargs):
-        super(DirectorySpider, self).__init__(*args, **kwargs)
+    def setup_redis(self, *args, **kwargs):
+        super().setup_redis(*args, **kwargs)
 
         if not self.server.exists("torspider:firstrun"):
             self.server.set("torspider:firstrun", 1)
