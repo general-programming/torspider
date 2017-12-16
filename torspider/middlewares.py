@@ -158,8 +158,8 @@ class RedisCustomDupeFilter(BaseDupeFilter):
         # Create the key if it has never been seen.
         added = self.server.setex(
             crawl_key,
-            request.url,
-            60 * 60 * 24
+            60 * 60 * 24,
+            request.url
         )
 
         self.server.sadd(
