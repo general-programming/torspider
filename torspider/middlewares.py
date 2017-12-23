@@ -82,12 +82,12 @@ class RedisCustomDupeFilter(BaseDupeFilter):
         server : redis.StrictRedis
             The redis server instance.
         key : str
-            Spider name for fingerprint storage prefix.
+            Used to be the spider key. Fixed to 'dupefilter' now.
         debug : bool, optional
             Whether to log filtered requests.
         """
         self.server = server
-        self.key = key
+        self.key = "dupefilter"
         self.debug = debug
         self.logdupes = True
         self.logger = logging.getLogger()
