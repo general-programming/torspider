@@ -14,8 +14,11 @@ services:
     restart: always
     environment:
       privoxy: 1
+      haproxy_pass: thisisnotsecureatallbutitisbetterthanplainadmin
     expose:
       - 8118
+      - 5566
+      - 2090
 
   spider:
       build:
