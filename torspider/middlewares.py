@@ -173,7 +173,7 @@ class RedisCustomDupeFilter(BaseDupeFilter):
         added = self.server.setex(
             crawl_key,
             60 * 60 * 24,
-            request.url
+            "1"
         )
 
         self.server.sadd(
