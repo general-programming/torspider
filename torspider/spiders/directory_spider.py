@@ -34,7 +34,7 @@ class DirectorySpider(RedisSpider):
         # Scrapy
         'DOWNLOAD_MAXSIZE': (1024 * 1024) * 2,
         # Middleware
-        'MAX_PAGES_PER_DOMAIN' : 4000,
+        'MAX_PAGES_PER_DOMAIN' : 2000,
         # scrapy_redis middleware
         'REDIS_START_URLS_AS_SET': True,
         'REDIS_START_URLS_KEY': 'torspider:urls'
