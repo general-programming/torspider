@@ -17,6 +17,20 @@ from scrapy_redis.connection import get_redis_from_settings
 
 from spidercommon.db import Domain, db_session
 from spidercommon.urls import ParsedURL
+from spidercommon.redis import create_redis
+
+MAX_PAGES_SCRIPT = """
+local domain = ARGV[1]
+local max_pages = tonumber(ARGV[2])
+local page_count = tonumber(redis.call("HGET", "spider:pagecount", domain))
+
+if page_count == nil or page_count <= max_pages then
+    local new_page_count = redis.call("HINCRBY", "spider:pagecount", domain, 1)
+    return new_page_count
+else
+    return page_count
+end
+""".strip()
 
 
 class FilterDomainByPageLimitMiddleware(object):
@@ -24,7 +38,8 @@ class FilterDomainByPageLimitMiddleware(object):
         logger = logging.getLogger()
         logger.info("FilterDomainbyPageLimitMiddleware loaded with MAX_PAGES_PER_DOMAIN = %d", max_pages)
         self.max_pages = max_pages
-        self.counter = defaultdict(int)
+        self.redis = create_redis()
+        self.pages_script = self.redis.register_script(MAX_PAGES_SCRIPT)
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -36,9 +51,9 @@ class FilterDomainByPageLimitMiddleware(object):
 
     def process_request(self, request, spider):
         parsed = ParsedURL(request.url)
-        if self.counter[parsed.host] < self.max_pages:
-            self.counter[parsed.host] += 1
-            spider.logger.info('Page count is %d for %s' % (self.counter[parsed.host], parsed.host))
+        page_count = self.pages_script(args=[parsed.host, self.max_pages])
+        if page_count < self.max_pages:
+            spider.logger.info('Page count is %d for %s' % (page_count, parsed.host))
             return None
         else:
             raise IgnoreRequest('MAX_PAGES_PER_DOMAIN reached, filtered %s' % request.url)
