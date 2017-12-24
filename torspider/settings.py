@@ -62,9 +62,7 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html
-#EXTENSIONS = {
-#    'scrapy.extensions.telnet.TelnetConsole': None,
-#}
+EXTENSIONS = {}
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
@@ -87,3 +85,8 @@ SCHEDULER_PERSIST = True
 DUPEFILTER_CLASS = "torspider.middlewares.RedisCustomDupeFilter"
 REDIS_HOST = os.environ.get('REDIS_PORT_6379_TCP_ADDR', os.environ.get('REDIS_HOST', '127.0.0.1'))
 REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
+
+# SENTRY
+SENTRY_DSN = os.environ.get("SENTRY_DSN", None)
+if SENTRY_DSN:
+    EXTENSIONS["scrapy_sentry.extensions.Errors"] = 10

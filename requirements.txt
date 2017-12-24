@@ -9,3 +9,5 @@ hiredis
 scrapy-redis
 brotli
 praw
+raven
+scrapy-sentry
