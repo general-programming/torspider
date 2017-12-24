@@ -10,7 +10,7 @@ import timeout_decorator
 from scrapy_redis.spiders import RedisSpider
 from sqlalchemy import and_
 
-from spidercommon.db import Domain, Page, sm
+from spidercommon.db import Domain, Page, sm, db_session
 from spidercommon.urls import ParsedURL
 from spidercommon.util import lock_single, md5
 
@@ -40,10 +40,6 @@ class DirectorySpider(RedisSpider):
         'REDIS_START_URLS_KEY': 'torspider:urls'
     }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.db = sm()
-
     def setup_redis(self, *args, **kwargs):
         super().setup_redis(*args, **kwargs)
 
@@ -56,7 +52,7 @@ class DirectorySpider(RedisSpider):
             self.server.sadd("torspider:urls", self.passed_url)
 
     @db_session
-    def parse(self, response, recent_alive_check=False):
+    def parse(self, response, recent_alive_check=False, db=None):
         MAX_PARSE_SIZE_KB = 2048
 
         # Grab the title of the page.
