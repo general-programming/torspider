@@ -2,6 +2,7 @@
 
 import random
 import re
+import time
 from datetime import datetime, timedelta
 
 import scrapy
@@ -136,7 +137,7 @@ class DirectorySpider(RedisSpider):
 
     def update_page_info(self, url, host, title, status_code, content, is_frontpage=False, size=0, db=None):
         if not Domain.is_onion_url(url):
-            return False
+            return None, None
 
         now = datetime.now()
         parsed = ParsedURL(url)
