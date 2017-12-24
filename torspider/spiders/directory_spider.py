@@ -50,6 +50,7 @@ class DirectorySpider(RedisSpider):
         if not self.server.exists("torspider:firstrun"):
             self.server.set("torspider:firstrun", 1)
             self.server.sadd("torspider:urls", *self.clean_start_urls)
+            self.server.execute_command("BF.RESERVE", "spider:visitedurls", 0.001, 100000000)
 
         if hasattr(self, "passed_url"):
             self.server.sadd("torspider:urls", self.passed_url)

@@ -151,7 +151,7 @@ class RedisCustomDupeFilter(BaseDupeFilter):
         -------
         str
         """
-        return "torspider:dupekeys:" + self.key
+        return "spider:visitedurls"
 
     def request_seen(self, request):
         """Returns True if request was already seen.
@@ -163,23 +163,13 @@ class RedisCustomDupeFilter(BaseDupeFilter):
         bool
         """
         fp = self.request_fingerprint(request)
-        crawl_key = self.key + ":" + fp
 
-        # Check for the key's existance.
-        if self.server.exists(crawl_key):
+        # Check the filter for the fingerprint..
+        if self.server.execute_command("BF.EXISTS", self.dupes_key, fp) == 1:
             return True
 
-        # Create the key if it has never been seen.
-        added = self.server.setex(
-            crawl_key,
-            60 * 60 * 24,
-            "1"
-        )
-
-        self.server.sadd(
-            self.dupes_key,
-            crawl_key
-        )
+        # Add the fingerprint if it has never been seen.
+        self.server.execute_command("BF.ADD", self.dupes_key, fp)
 
         return False
 
@@ -212,9 +202,8 @@ class RedisCustomDupeFilter(BaseDupeFilter):
 
     def clear(self):
         """Clears fingerprints data."""
-        keys = self.server.smembers(self.dupes_key)
-        for key in keys:
-            self.server.delete(key)
+        self.server.delete(self.dupes_key)
+        self.server.execute_command("BF.RESERVE", self.dupes_key, 0.001, 100000000)
 
     def log(self, request, spider):
         """Logs given request.
