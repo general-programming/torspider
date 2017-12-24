@@ -59,6 +59,9 @@ class DirectorySpider(RedisSpider):
             title = response.css('title::text').extract_first()
         except AttributeError:
             pass
+        except scrapy.exceptions.NotSupported:
+            self.log(f"Skipping non-text file {response.url}")
+            return
 
         # Get tor URL "hostname"
         parsed = ParsedURL(response.url)
