@@ -22,6 +22,12 @@ redis = create_redis()
 
 # CLI functions
 
+def purge_dupekeys(list_key="torspider:dupekeys:dupefilter"):
+    for member_key in redis.smembers(list_key):
+        if not redis.exists(member_key):
+            print(f"Removing key {member_key}")
+            redis.srem(list_key, member_key)
+
 def fetch_subreddit(subreddit, top=True, limit=None):
     sub = reddit.subreddit(subreddit)
     getter_funcs = [sub.hot(limit=limit)]

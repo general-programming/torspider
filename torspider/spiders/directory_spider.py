@@ -11,7 +11,7 @@ from sqlalchemy import and_
 
 from spidercommon.db import Domain, Page, db_session
 from spidercommon.urls import ParsedURL
-
+from spidercommon.util import lock_single, md5
 
 class DirectorySpider(RedisSpider):
     name = "tor"
@@ -151,8 +151,12 @@ class DirectorySpider(RedisSpider):
         page = db.query(Page).filter(Page.url == url).scalar()
 
         if not page:
-            page = Page(url=url, domain_id=domain.id, title=title, status_code=status_code, last_crawl=now, is_frontpage=is_frontpage, size=size, path=parsed.path)
-            db.add(page)
+            if lock_single(self.server, "page:" + md5(url)):
+                page = Page(url=url, domain_id=domain.id, title=title, status_code=status_code, last_crawl=now, is_frontpage=is_frontpage, size=size, path=parsed.path)
+                db.add(page)
+            else:
+                time.sleep(1.5)
+                page = db.query(Page).filter(Page.url == url).scalar()
 
         # Update domain information.
         page.status_code = status_code

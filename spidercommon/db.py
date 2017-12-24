@@ -2,6 +2,7 @@
 import datetime
 import os
 import re
+import time
 from functools import wraps
 from typing import Union
 
@@ -17,6 +18,8 @@ from sqlalchemy.schema import Index
 
 from spidercommon.regexes import onion_regex
 from spidercommon.urls import ParsedURL
+from spidercommon.util import lock_single, md5
+from spidercommon.redis import create_redis
 
 debug = os.environ.get('DEBUG', False)
 
@@ -27,6 +30,8 @@ engine = create_engine(
     pool_size=25,
     max_overflow=25
 )
+
+redis = create_redis()
 
 if debug:
     engine.echo = True
@@ -99,11 +104,16 @@ class Page(Base):
     def find_stub_by_url(cls, url: str, db):
         now = datetime.datetime.now()
         page = db.query(Page).filter(Page.url == url).scalar()
+
         if not page:
             domain = Domain.find_stub_by_url(url, db)
-            page = cls(url=url, domain_id=domain.id)
-            db.add(page)
-            db.commit()
+            if lock_single(redis, "page:" + md5(url)):
+                page = cls(url=url, domain_id=domain.id)
+                db.add(page)
+                db.commit()
+            else:
+                time.sleep(1)
+                page = db.query(Page).filter(Page.url == url).scalar()
 
         return page
 
@@ -156,9 +166,17 @@ class Domain(Base):
         )).scalar()
 
         if not domain:
-            domain = cls(host=host, port=port, secure=ssl, last_crawl=now())
-            db.add(domain)
-            db.commit()
+            if lock_single(redis, "domain:" + md5(f"{host}:{port}:{ssl}")):
+                domain = cls(host=host, port=port, secure=ssl, last_crawl=now())
+                db.add(domain)
+                db.commit()
+            else:
+                time.sleep(1)
+                domain = db.query(Domain).filter(and_(
+                    Domain.host == host,
+                    Domain.port == port,
+                    Domain.secure == ssl
+                )).scalar()
 
         return domain
 
