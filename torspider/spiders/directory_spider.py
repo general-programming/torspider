@@ -104,7 +104,6 @@ class DirectorySpider(RedisSpider):
         """
         
         link_to_list = []
-        self.log("Finding links...")
 
         if parsed.host not in DirectorySpider.spider_exclude:
             for url in response.xpath('//a/@href').extract():
