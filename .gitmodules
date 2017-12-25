@@ -1,0 +1,3 @@
+[submodule "containers/tor"]
+	path = containers/tor
+	url = https://github.com/zet4/alpine-tor.git

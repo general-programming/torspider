@@ -11,7 +11,8 @@ services:
       - 6379
 
   tor:
-    image: zeta0/alpine-tor:latest
+    build:
+      context: containers/tor
     restart: always
     environment:
       privoxy: 1
