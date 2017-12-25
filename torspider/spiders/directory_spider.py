@@ -129,8 +129,7 @@ class DirectorySpider(RedisSpider):
                 small_body = response.body[:(1024 * MAX_PARSE_SIZE_KB)]
                 links_to = set()
                 for url in link_to_list:
-                    link_to = Page.find_stub_by_url(url, db)
-                    if link_to not in page.links_to:
+                    if url not in page.links_to:
                         links_to.add(url)
                     page.links_to = list(links_to)
 
