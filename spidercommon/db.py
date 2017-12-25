@@ -15,6 +15,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (relationship, scoped_session, sessionmaker,
                             validates)
 from sqlalchemy.schema import Index
+from sqlalchemy.pool import NullPool
 
 from spidercommon.regexes import onion_regex
 from spidercommon.urls import ParsedURL
@@ -26,9 +27,7 @@ debug = os.environ.get('DEBUG', False)
 engine = create_engine(
     os.environ["POSTGRES_URL"],
     convert_unicode=True,
-    pool_recycle=3600,
-    pool_size=25,
-    max_overflow=25
+    poolclass=NullPool,
 )
 
 redis = create_redis()
