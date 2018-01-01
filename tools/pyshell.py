@@ -2,11 +2,12 @@ import code
 import os
 import re
 import uuid
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 import praw
 from spidercommon.redis import create_redis
 from spidercommon.regexes import onion_regex
+from spidercommon.db import Domain, sm
 
 # Connections
 
@@ -18,6 +19,7 @@ reddit = praw.Reddit(
     password=os.environ.get("REDDIT_PASSWORD", None)
 )
 
+db = sm()
 redis = create_redis()
 
 # CLI functions
@@ -43,6 +45,18 @@ def fetch_subreddit(subreddit, top=True, limit=None):
         for post in func:
             check_onions(post.url)
             check_onions(post.selftext)
+
+def check_ports():
+    http_ports = [80, 5000, 5800, 8000, 8008, 8080]
+    for domain in db.query(Domain):
+        for port in http_ports:
+            if port != 80:
+                joined_url = f"http://{domain.host}"
+            else:
+                joined_url = f"http://{domain.host}:{port}"
+            redis.sadd("torspider:singleurls", joined_url)
+
+# Helper functions
 
 def check_onions(content):
     if not content:

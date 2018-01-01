@@ -10,6 +10,7 @@ class LinkSpider(SpiderBase):
     custom_settings = {
         # Scrapy
         'DOWNLOAD_MAXSIZE': (1024 * 1024) * 2,
+        "DOWNLOAD_TIMEOUT": 30,
         # Middleware
         'MAX_PAGES_PER_DOMAIN' : -1,
         # scrapy_redis middleware
