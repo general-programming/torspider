@@ -122,7 +122,6 @@ class SpiderBase(RedisSpider):
         page_metadata["size"] = len(response.body)
         page_metadata["host"] = parsed.host
 
-        # XXX: Make a constant for this.
         got_server_response = response.status in GOOD_STATUS_CODES
 
         # Domain headers
