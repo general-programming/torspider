@@ -22,6 +22,9 @@ class DatabasePipeline(object):
 
     @db_session
     def process_item(self, item, spider, db=None):
+        if not item:
+            raise DropItem("Somehow got a blank item dict.")
+
         if not Domain.is_onion_url(item["url"]):
             raise DropItem(f"{item['url']} is not an onion.")
 
