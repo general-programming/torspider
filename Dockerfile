@@ -7,11 +7,8 @@ RUN echo http://dl-cdn.alpinelinux.org/alpine/edge/main > /etc/apk/repositories 
 
 # Requirements
 COPY requirements.txt /app/requirements.txt
-RUN apk add --no-cache build-base libffi libffi-dev ca-certificates pkgconf postgresql-dev ca-certificates libxml2-dev libxslt-dev tini proxychains-ng && \
+RUN apk add --no-cache build-base libffi libffi-dev ca-certificates pkgconf postgresql-dev ca-certificates libxml2-dev libxslt-dev tini && \
 	CFLAGS=-I/usr/include/libxml2 pip3 install -r /app/requirements.txt
-
-# Configs
-COPY tools/proxychains.conf /etc/proxychains/proxychains.conf
 
 # Workdir
 WORKDIR /app

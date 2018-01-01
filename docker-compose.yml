@@ -31,8 +31,10 @@ services:
       environment:
         REDIS_HOST: redis
         REDIS_PORT: 6379
+        http_proxy: http://tor:8118
+        https_proxy: http://tor:8118
       env_file: .env
-      command: "proxychains4 scrapy crawl --nolog tordirectory"
+      command: "scrapy crawl --nolog tordirectory"
       depends_on:
         - redis
         - tor
@@ -44,8 +46,10 @@ services:
       environment:
         REDIS_HOST: redis
         REDIS_PORT: 6379
+        http_proxy: http://tor:8118
+        https_proxy: http://tor:8118
       env_file: .env
-      command: "proxychains4 scrapy crawl --nolog torlink"
+      command: "scrapy crawl --nolog torlink"
       depends_on:
         - redis
         - tor
