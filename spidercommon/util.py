@@ -1,7 +1,8 @@
+import hashlib
 import random
 import time
 import uuid
-import hashlib
+
 
 def md5(content: str):
     return hashlib.md5(content.encode("utf8")).hexdigest()

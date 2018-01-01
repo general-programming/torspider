@@ -5,8 +5,8 @@ import uuid
 from urllib.parse import urlparse
 
 import praw
-from spidercommon.regexes import onion_regex
 from spidercommon.redis import create_redis
+from spidercommon.regexes import onion_regex
 
 # Connections
 

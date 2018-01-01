@@ -1,6 +1,6 @@
 import os
 
-from redis import StrictRedis, ConnectionPool
+from redis import ConnectionPool, StrictRedis
 
 redis_pool = ConnectionPool(
     host=os.environ.get("REDIS_HOST", "localhost"),

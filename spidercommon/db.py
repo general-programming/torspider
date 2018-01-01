@@ -7,6 +7,10 @@ from functools import wraps
 from typing import Union
 
 import brotli
+from spidercommon.redis import create_redis
+from spidercommon.regexes import onion_regex
+from spidercommon.urls import ParsedURL
+from spidercommon.util import lock_single, md5
 from sqlalchemy import (ARRAY, Boolean, Column, DateTime, ForeignKey, Integer,
                         LargeBinary, String, Unicode, UnicodeText, and_,
                         create_engine)
@@ -14,13 +18,8 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (relationship, scoped_session, sessionmaker,
                             validates)
-from sqlalchemy.schema import Index
 from sqlalchemy.pool import NullPool
-
-from spidercommon.regexes import onion_regex
-from spidercommon.urls import ParsedURL
-from spidercommon.util import lock_single, md5
-from spidercommon.redis import create_redis
+from sqlalchemy.schema import Index
 
 debug = os.environ.get('DEBUG', False)
 

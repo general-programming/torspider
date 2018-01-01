@@ -5,7 +5,9 @@ class ParsedURL(object):
     """
     Wrapper for urlparse that removes the copy/paste work of hostname, port, ssl, and path.
     """
+
     __slots__ = ["url", "host", "port", "path", "secure", "path", "urlparse"]
+
     def __init__(self, url: str):
         self.url = url
         self.urlparse = urlparse(url)

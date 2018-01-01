@@ -8,11 +8,11 @@ from datetime import datetime, timedelta
 import scrapy
 import timeout_decorator
 from scrapy_redis.spiders import RedisSpider
-from sqlalchemy import and_
-
-from spidercommon.db import Domain, Page, sm, db_session
+from spidercommon.db import Domain, Page, db_session, sm
 from spidercommon.urls import ParsedURL
 from spidercommon.util import lock_single, md5
+from sqlalchemy import and_
+
 
 class DirectorySpider(RedisSpider):
     name = "tor"
