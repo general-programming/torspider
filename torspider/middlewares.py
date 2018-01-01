@@ -51,6 +51,10 @@ class FilterDomainByPageLimitMiddleware(object):
         return o
 
     def process_request(self, request, spider):
+        # Allow requests if the max pages is disabled.
+        if self.max_pages == -1:
+            return request
+
         parsed = ParsedURL(request.url)
         page_count = self.pages_script(args=[parsed.host, self.max_pages])
         if page_count < self.max_pages:

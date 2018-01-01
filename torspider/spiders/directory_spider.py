@@ -1,20 +1,13 @@
 # Credits to https://github.com/dirtyfilthy/freshonions-torscraper/blob/master/torscraper/spiders/tor_scrapy.py for basic framework
 
-import random
-import re
-import time
-from datetime import datetime, timedelta
-
-import scrapy
-import timeout_decorator
-from sqlalchemy import and_
-
-from spidercommon.db import Domain, Page, db_session, sm
-from spidercommon.urls import ParsedURL
 from torspider.spiders.base import SpiderBase
 
 
 class DirectorySpider(SpiderBase):
+    """
+        Spider that follows every link until exhaustion.
+    """
+
     name = "tordirectory"
 
     custom_settings = {
