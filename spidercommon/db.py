@@ -51,7 +51,12 @@ def now():
 def db_session(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        # Call the function normally if it already has a DB object.
+        if kwargs.get("db", None):
+            return f(*args, **kwargs)
+
         db = sm()
+
         try:
             return f(db=db, *args, **kwargs)
         finally:
