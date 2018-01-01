@@ -66,9 +66,9 @@ EXTENSIONS = {}
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'torspider.pipelines.TorspiderPipeline': 300,
-#}
+ITEM_PIPELINES = {
+   'torspider.pipelines.DatabasePipeline': 100,
+}
 
 # Our special sauce
 RETRY_TIMES = 1

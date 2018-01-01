@@ -1,12 +1,10 @@
-import time
 import re
-from datetime import datetime
+
 import scrapy
 from scrapy_redis.spiders import RedisSpider
 
-from spidercommon.db import Domain, Page
+from spidercommon.db import Domain, Page, db_session
 from spidercommon.urls import ParsedURL
-from spidercommon.util import lock_single, md5
 
 
 class SpiderBase(RedisSpider):
@@ -39,123 +37,122 @@ class SpiderBase(RedisSpider):
             #pylint: disable=E1101
             self.server.sadd("torspider:urls", self.passed_url)
 
-    def update_page_info(self, response, db=None, follow_links: bool=False):
-        """
-            Updates the page meta information in DB.
-            Creates the DB objects if they do not exist.
+    @db_session
+    def parse(self, response, follow_links=False, db=None):
+        page_metadata = self.parse_page_info(response, db)
 
-            Updates:
-                - Title
-                - Hostname
-                - Last status code
-                - Server header
-                - Powered By headers
-                - Linked to pages
+        if not page_metadata:
+            return None
 
-            Returns:
-                Parsed URL object and Page model object.
+        if follow_links:
+            for link in page_metadata["links_to"]:
+                yield scrapy.Request(link, callback=self.parse)
+
+            # XXX Make this code work.
+            """ See how useful random path checking can be later.
+            # Add some randomness to the check
+            path_event_horizon = datetime.now() - timedelta(days=14 + random.randint(0, 14))
+
+            # Interesting paths
+            if domain.is_up and domain.path_scanned_at < path_event_horizon:
+                domain.path_scanned_at = datetime.now()
+                commit()
+                for url in interesting_paths.construct_urls(domain):
+                    yield scrapy.Request(url, callback=self.parse)
+
+            # /description.json
+            if domain.is_up and domain.description_json_at < path_event_horizon:
+                domain.description_json_at = datetime.now()
+                commit()
+                yield scrapy.Request(domain.construct_url("/description.json"), callback=self.description_json)
+            """
+
+        yield page_metadata
+
+    def parse_page_info(self, response, db=None):
         """
+            Parses the page meta information for the pipeline.
+
+            Example return:
+                {
+                    "title": "Page title",
+                    "host": "someonionpagehostname.onion",
+                    "url": "someonionpagehostname.onion/",
+                    "powered_by": "IE 6.0",
+                    "frontpage": True,
+                    "size": 420,
+                    "status_code": 200,
+                    "text": "<h1>Under Construction</h1>",
+                    "links_to": set()
+                }
+        """
+
+        page_metadata = {
+            # HTTP headers
+            "host": "",
+            "url": response.url,
+            "status_code": response.status,
+            "size": 0,
+            "server": "",
+            "powered_by": "",
+
+            # Parsed from page
+            "title": "",
+            "frontpage": False,
+            "content": response.text,
+            "links_to": set()
+        }
 
         # Grab the title of the page.
-        title = ''
         try:
-            title = response.css('title::text').extract_first()
+            page_metadata["title"] = response.css('title::text').extract_first()
         except AttributeError:
             pass
         except scrapy.exceptions.NotSupported:
             self.log(f"Skipping non-text file {response.url}")
-            return None, None
+            return None
 
         # Get tor URL "hostname"
         parsed = ParsedURL(response.url)
 
-        self.log('Got %s (%s)' % (response.url, title))
-        is_frontpage = Page.is_frontpage_request(response.request)
-        size = len(response.body)
-        
-        page, domain = self._update_page_info(response.url, parsed.host, title, response.status, response.text, is_frontpage, size, db)
-        if not page:
-            return None, None
+        self.log('Got %s (%s)' % (response.url, page_metadata["title"]))
+        page_metadata["frontpage"] = Page.is_frontpage_request(response.request)
+        page_metadata["size"] = len(response.body)
+        page_metadata["host"] = parsed.host
+
+        # XXX: Make a constant for this.
+        got_server_response = response.status in [200, 401, 403, 500, 302, 304, 206]
 
         # Domain headers
-        if page.got_server_response:
+        if got_server_response:
             if response.headers.get("Server"):
-                domain.header_server = str(response.headers.get("Server"))
+                page_metadata["server"] = str(response.headers.get("Server"))
             if response.headers.get("X-Powered-By"):
-                domain.header_powered_by = str(response.headers.get("X-Powered-By"))
+                page_metadata["powered_by"] = str(response.headers.get("X-Powered-By"))
             if response.headers.get("Powered-By"):
-                domain.header_powered_by = str(response.headers.get("Powered-By"))
+                page_metadata["powered_by"] = str(response.headers.get("Powered-By"))
 
         is_text = False
         content_type = str(response.headers.get("Content-Type"))
-        if page.got_server_response and content_type and re.match('^text/', content_type.strip()):
+        if got_server_response and content_type and re.match('^text/', content_type.strip()):
             is_text = True
         
         # Update links_to
-        link_to_list = []
-
         if parsed.host not in self.spider_exclude:
             for url in response.xpath('//a/@href').extract():
                 fullurl = response.urljoin(url)
 
-                if follow_links:
-                    yield scrapy.Request(fullurl, callback=self.parse)
-
-                if page.got_server_response and Domain.is_onion_url(fullurl):
+                if got_server_response and Domain.is_onion_url(fullurl):
                     try:
                         parsed_link = ParsedURL(fullurl)
                     except:
                         continue
                     link_host = parsed_link.host
                     if parsed.host != link_host:
-                        link_to_list.append(fullurl)
+                        page_metadata["links_to"].add(fullurl)
 
-            self.log("link_to_list %s" % link_to_list)
-                
-            if page.got_server_response:
-                small_body = response.body[:(1024 * self.max_parse_size_kb)]
-                links_to = set()
-                for url in link_to_list:
-                    if url not in page.links_to:
-                        links_to.add(url)
-                    page.links_to = list(links_to)
+            self.log("link_to_list %s" % page_metadata["links_to"])
 
             db.commit()
 
-        return parsed, page
-
-    def _update_page_info(self, url: str, host: str, title: str, status_code: int, content, is_frontpage: bool=False, size: int=0, db=None):
-        if not Domain.is_onion_url(url):
-            return None, None
-
-        now = datetime.now()
-        parsed = ParsedURL(url)
-
-        # Get or create domain and update info.
-        domain = Domain.find_stub_by_url(url, db)
-        domain.last_crawl = now
-        if is_frontpage:
-            if not (domain.title != '' and title == ''):
-                domain.title = title
-        db.commit()
-
-        # Get or create page.
-        page = db.query(Page).filter(Page.url == url).scalar()
-
-        if not page:
-            if lock_single(self.server, "page:" + md5(url)):
-                page = Page(url=url, domain_id=domain.id, title=title, status_code=status_code, last_crawl=now, is_frontpage=is_frontpage, size=size, path=parsed.path)
-                db.add(page)
-            else:
-                time.sleep(1.5)
-                page = db.query(Page).filter(Page.url == url).scalar()
-
-        # Update domain information.
-        page.status_code = status_code
-        page.last_crawl = now
-        page.size = size
-        if page.content != content:
-            page.content = content
-        db.commit()
-
-        return page, domain
+        return page_metadata
