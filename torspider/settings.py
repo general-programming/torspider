@@ -24,22 +24,11 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; rv:52.0) Gecko/20100101 Firefox/52.0'
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
 
-# Configure maximum concurrent requests performed by Scrapy (default: 16)
-#CONCURRENT_REQUESTS = 32
-
-# Configure a delay for requests for the same website (default: 0)
-# See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
-# See also autothrottle settings and docs
-#DOWNLOAD_DELAY = 3
-# The download delay setting will honor only one of:
-#CONCURRENT_REQUESTS_PER_DOMAIN = 16
-#CONCURRENT_REQUESTS_PER_IP = 16
-
 # Disable cookies (enabled by default)
 COOKIES_ENABLED = False
 
-# Disable Telnet Console (enabled by default)
-TELNETCONSOLE_ENABLED = False
+# Enable telnet console if TELNET_ENABLE in environ. (Enabled by default)
+TELNETCONSOLE_ENABLED = "TELNET_ENABLE" in os.environ
 
 # Override the default request headers:
 DEFAULT_REQUEST_HEADERS = {
@@ -74,9 +63,9 @@ ITEM_PIPELINES = {
 RETRY_TIMES = 1
 DOWNLOAD_TIMEOUT = 90 # XXX: Why is 90 seconds the timeout?
 DEPTH_PRIORITY = 8
-CONCURRENT_REQUESTS = 32
+CONCURRENT_REQUESTS = 128
 REACTOR_THREADPOOL_MAXSIZE = 32
-CONCURRENT_REQUESTS_PER_DOMAIN = 4
+CONCURRENT_REQUESTS_PER_DOMAIN = 8
 RETRY_HTTP_CODES = [500, 502, 503, 504, 408, 400]
 
 # Redis
