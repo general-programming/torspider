@@ -5,6 +5,7 @@ from collections import defaultdict
 from io import BytesIO
 
 from lxml import etree
+
 from spidercommon.db import Domain, Page, sm
 from spidercommon.regexes import onion_regex
 from spidercommon.urls import ParsedURL

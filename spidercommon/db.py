@@ -7,10 +7,6 @@ from functools import wraps
 from typing import Union
 
 import brotli
-from spidercommon.redis import create_redis
-from spidercommon.regexes import onion_regex
-from spidercommon.urls import ParsedURL
-from spidercommon.util import lock_single, md5
 from sqlalchemy import (ARRAY, Boolean, Column, DateTime, ForeignKey, Integer,
                         LargeBinary, String, Unicode, UnicodeText, and_,
                         create_engine)
@@ -20,6 +16,11 @@ from sqlalchemy.orm import (relationship, scoped_session, sessionmaker,
                             validates)
 from sqlalchemy.pool import NullPool
 from sqlalchemy.schema import Index
+
+from spidercommon.redis import create_redis
+from spidercommon.regexes import onion_regex
+from spidercommon.urls import ParsedURL
+from spidercommon.util import lock_single, md5
 
 debug = os.environ.get('DEBUG', False)
 
