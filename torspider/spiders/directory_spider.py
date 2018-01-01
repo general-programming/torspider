@@ -21,4 +21,4 @@ class DirectorySpider(SpiderBase):
     }
 
     def parse(self, *args, **kwargs):
-        return super().parse(follow_links=True, *args, **kwargs)
+        yield super().parse(follow_links=True, *args, **kwargs)

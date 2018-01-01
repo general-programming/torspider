@@ -10,7 +10,8 @@ class LinkSpider(SpiderBase):
     custom_settings = {
         # Scrapy
         'DOWNLOAD_MAXSIZE': (1024 * 1024) * 2,
-        "DOWNLOAD_TIMEOUT": 30,
+        # This is assuming that the spider has a fast connection to Tor.
+        "DOWNLOAD_TIMEOUT": 10,
         # Middleware
         'MAX_PAGES_PER_DOMAIN' : -1,
         # scrapy_redis middleware
@@ -19,4 +20,4 @@ class LinkSpider(SpiderBase):
     }
 
     def parse(self, *args, **kwargs):
-        return super().parse(follow_links=False, *args, **kwargs)
+        yield super().parse(follow_links=False, *args, **kwargs)
