@@ -106,3 +106,7 @@ virtualenv/
 
 # Cancer
 .DS_Store
+
+# direnv
+.direnv/
+.envrc
