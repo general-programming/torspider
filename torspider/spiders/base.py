@@ -26,6 +26,8 @@ class SpiderBase(RedisSpider):
 
     max_parse_size_kb = 2048
 
+    follow_links = False
+
     def setup_redis(self, *args, **kwargs):
         super().setup_redis(*args, **kwargs)
 
@@ -39,14 +41,17 @@ class SpiderBase(RedisSpider):
             self.server.sadd("torspider:urls", self.passed_url)
 
     @db_session
-    def parse(self, response, follow_links=False, db=None):
+    def parse(self, response, db=None):
         page_metadata = self.parse_page_info(response, db)
 
         if not page_metadata:
             return None
 
-        if follow_links:
+        if self.follow_links:
             for link in page_metadata["links_to"]:
+                yield scrapy.Request(link, callback=self.parse)
+
+            for link in page_metadata["other_links"]:
                 yield scrapy.Request(link, callback=self.parse)
 
             # XXX Make this code work.
@@ -102,7 +107,8 @@ class SpiderBase(RedisSpider):
             "title": "",
             "frontpage": False,
             "content": response.text,
-            "links_to": set()
+            "links_to": set(),
+            "other_links": set()
         }
 
         # Grab the title of the page.
@@ -151,6 +157,8 @@ class SpiderBase(RedisSpider):
                     link_host = parsed_link.host
                     if parsed.host != link_host:
                         page_metadata["links_to"].add(fullurl)
+                    else:
+                        page_metadata["other_links"].add(fullurl)
 
             self.log("link_to_list %s" % page_metadata["links_to"])
 

@@ -3,7 +3,8 @@
 # Assuming code for the dev setup is not kept in /app/torspider, we should be fine.
 if [ -d "/app/torspider" ]; then
     # Container
-    http_proxy="" https_proxy="" apk add --no-cache postgresql-client redis zsh busybox-extras nano less
+    apk update
+    http_proxy="" https_proxy="" apk add postgresql-client redis zsh busybox-extras nano less
     echo "alias redis-cli='redis-cli -h $REDIS_HOST -p $REDIS_PORT'" >> ~/.zshrc
     zsh -i
 else

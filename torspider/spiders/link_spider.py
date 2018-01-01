@@ -19,5 +19,4 @@ class LinkSpider(SpiderBase):
         'REDIS_START_URLS_KEY': 'torspider:singleurls',
     }
 
-    def parse(self, *args, **kwargs):
-        yield super().parse(follow_links=False, *args, **kwargs)
+    follow_links = False

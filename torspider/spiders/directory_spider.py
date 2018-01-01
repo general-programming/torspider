@@ -20,5 +20,4 @@ class DirectorySpider(SpiderBase):
         'REDIS_START_URLS_KEY': 'torspider:urls',
     }
 
-    def parse(self, *args, **kwargs):
-        yield super().parse(follow_links=True, *args, **kwargs)
+    follow_links = True
