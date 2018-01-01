@@ -76,14 +76,15 @@ class SpiderBase(RedisSpider):
 
             Example return:
                 {
-                    "title": "Page title",
                     "host": "someonionpagehostname.onion",
                     "url": "someonionpagehostname.onion/",
-                    "powered_by": "IE 6.0",
-                    "frontpage": True,
-                    "size": 420,
                     "status_code": 200,
-                    "text": "<h1>Under Construction</h1>",
+                    "size": 420,
+                    "server": "TotallyReal Server",
+                    "powered_by": "IE 6.0",
+                    "title": "Page title",
+                    "frontpage": True,
+                    "content": "<h1>Under Construction</h1>",
                     "links_to": set()
                 }
         """
