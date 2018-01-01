@@ -50,7 +50,7 @@ def check_ports():
     http_ports = [80, 5000, 5800, 8000, 8008, 8080]
     for domain in db.query(Domain):
         for port in http_ports:
-            if port != 80:
+            if port == 80:
                 joined_url = f"http://{domain.host}"
             else:
                 joined_url = f"http://{domain.host}:{port}"
