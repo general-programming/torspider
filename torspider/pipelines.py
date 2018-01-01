@@ -64,6 +64,9 @@ class DatabasePipeline(object):
             page.content = item["content"]
         page.header_server = item["server"]
         page.header_powered_by = item["powered_by"]
-        db.commit()
 
+        # Update links to.
+        page.links_to = list(item["links_to"])
+
+        db.commit()
         return item
