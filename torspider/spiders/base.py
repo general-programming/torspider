@@ -5,6 +5,7 @@ from scrapy_redis.spiders import RedisSpider
 
 from spidercommon.db import Domain, Page, db_session
 from spidercommon.urls import ParsedURL
+from torspider.constants import GOOD_STATUS_CODES
 
 
 class SpiderBase(RedisSpider):
@@ -121,7 +122,7 @@ class SpiderBase(RedisSpider):
         page_metadata["host"] = parsed.host
 
         # XXX: Make a constant for this.
-        got_server_response = response.status in [200, 401, 403, 500, 302, 304, 206]
+        got_server_response = response.status in GOOD_STATUS_CODES
 
         # Domain headers
         if got_server_response:

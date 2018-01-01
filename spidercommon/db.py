@@ -17,6 +17,7 @@ from sqlalchemy.orm import (relationship, scoped_session, sessionmaker,
 from sqlalchemy.pool import NullPool
 from sqlalchemy.schema import Index
 
+from spidercommon.constants import GOOD_STATUS_CODES
 from spidercommon.redis import create_redis
 from spidercommon.regexes import onion_regex
 from spidercommon.urls import ParsedURL
@@ -118,8 +119,7 @@ class Page(Base):
 
     @property
     def got_server_response(self):
-        responded = [200, 401, 403, 500, 302, 304, 206]
-        return (self.status_code in responded)
+        return (self.status_code in GOOD_STATUS_CODES)
 
     @staticmethod
     def is_frontpage_url(url):
