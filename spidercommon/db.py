@@ -209,6 +209,39 @@ class Domain(Base):
         except:
             return False
 
+class OnionListPage(Base):
+    """
+        Page model for grabs of big onion lists.
+    """
+
+    __tablename__ = "onionlist_pages"
+    id = Column(Integer, primary_key=True)
+
+    url = Column(String, nullable=False)
+    first_crawl = Column(DateTime(), nullable=False, default=now)
+    last_crawl = Column(DateTime(), nullable=False, default=now)
+
+    _content = Column("content", LargeBinary)
+
+    @property
+    def content(self):
+        if not self._content:
+            return None
+
+        decompressed = brotli.decompress(self._content)
+        try:
+            decompressed = decompressed.decode("utf8")
+        except UnicodeDecodeError:
+            pass
+
+        return decompressed
+
+    @content.setter
+    def content(self, content) -> Union[str, bytes]:
+        if isinstance(content, str):
+            content = content.encode("utf8")
+
+        self._content = brotli.compress(content)
 
 # Indexes
 Index("index_domain_host", Domain.host)
