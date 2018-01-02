@@ -33,24 +33,11 @@ services:
         REDIS_PORT: 6379
         SOCKS_PROXY: socks5://tor:5566
       env_file: .env
-      command: "scrapy crawl --nolog tordirectory"
+      command: "python torspider"
       depends_on:
         - redis
         - tor
 
-  linkspider:
-      build:
-          context: .
-      restart: always
-      environment:
-        REDIS_HOST: redis
-        REDIS_PORT: 6379
-        SOCKS_PROXY: socks5://tor:5566
-      env_file: .env
-      command: "scrapy crawl --nolog torlink"
-      depends_on:
-        - redis
-        - tor
 volumes:
   redis:
     driver: local
