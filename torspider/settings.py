@@ -45,8 +45,8 @@ SPIDER_MIDDLEWARES = {
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-    'torspider.middlewares.FilterDomainByPageLimitMiddleware' : 551,
-    'torspider.middlewares.FilterTooManySubdomainsMiddleware' : 550,
+    'torspider.middlewares.FilterTooManySubdomainsMiddleware' : 300,
+    'torspider.middlewares.FilterDomainByPageLimitMiddleware' : 550,
 }
 
 # Enable or disable extensions

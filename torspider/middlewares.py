@@ -62,6 +62,11 @@ class FilterDomainByPageLimitMiddleware(object):
         else:
             raise IgnoreRequest('MAX_PAGES_PER_DOMAIN reached, filtered %s' % request.url)
 
+    def process_exception(self, request, exception, spider):
+        parsed = ParsedURL(request.url)
+        self.redis.hincrby("spider:pagecount", parsed.host, -1)
+
+        return None
 
 class FilterTooManySubdomainsMiddleware(object):
     def __init__(self):
