@@ -12,3 +12,4 @@ praw
 raven
 scrapy-sentry
 txtorcon
+requests[socks]

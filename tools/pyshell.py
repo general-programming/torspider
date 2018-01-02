@@ -5,8 +5,9 @@ import uuid
 from urllib.parse import urljoin, urlparse
 
 import praw
+import requests
 
-from spidercommon.db import Domain, sm
+from spidercommon.db import Domain, OnionListPage, sm
 from spidercommon.redis import create_redis
 from spidercommon.regexes import onion_regex
 
@@ -44,8 +45,8 @@ def fetch_subreddit(subreddit, top=True, limit=None):
         ])
     for func in getter_funcs:
         for post in func:
-            check_onions(post.url)
-            check_onions(post.selftext)
+            add_onions(post.url)
+            add_onions(post.selftext)
 
 def check_ports():
     http_ports = [80, 5000, 5800, 8000, 8008, 8080]
@@ -57,9 +58,22 @@ def check_ports():
                 joined_url = f"http://{domain.host}:{port}"
             redis.sadd("torspider:singleurls", joined_url)
 
+def grab_onions(url: str):
+    request = requests.get(url)
+    db_entry = db.query(OnionListPage).filter(OnionListPage.url == url).scalar()
+    if not db_entry:
+        db_entry = OnionListPage(
+            url=url
+        )
+        db.add(db_entry)
+
+    db_entry.content = request.text
+    db.commit()
+    add_onions(request.text)
+
 # Helper functions
 
-def check_onions(content):
+def add_onions(content):
     if not content:
         return
 
