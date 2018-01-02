@@ -110,3 +110,6 @@ virtualenv/
 # direnv
 .direnv/
 .envrc
+
+# App large files
+tools/data.js

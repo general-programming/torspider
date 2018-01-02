@@ -1,16 +1,11 @@
 import json
-import random
 import re
 from collections import defaultdict
-from io import BytesIO
-
-from lxml import etree
 
 from spidercommon.db import Domain, Page, sm
 from spidercommon.regexes import onion_regex
 from spidercommon.urls import ParsedURL
 
-htmlparser = etree.HTMLParser()
 db = sm()
 nodes = []
 edges = []
@@ -19,17 +14,18 @@ edges = []
 domains_by_id = {}
 for domain in db.query(Domain):
     domains_by_id[domain.id] = domain
+
+domains_by_host = {}
+for _id, domain in domains_by_id.items():
+    domains_by_host[domain.host] = domain
+
 print(f"{len(domains_by_id)} domains in DB.")
 
 # Iterate all pages
 link_iters = defaultdict(lambda: defaultdict(lambda: 0))
 used_domains = set()
 
-for page in db.query(Page).filter(Page._content != None).order_by(Page.id):
-    page_content = page.content
-    if isinstance(page_content, str):
-        page_content = page_content.encode("utf8")
-
+for page in db.query(Page).filter(Page.links_to != "{}").order_by(Page.id).yield_per(250).enable_eagerloads(False):
     if page.id % 250 == 0:
         print(f"Currently at ID {page.id}.")
 
@@ -41,9 +37,7 @@ for page in db.query(Page).filter(Page._content != None).order_by(Page.id):
         })
         used_domains.add(page.domain_id)
 
-    tree = etree.parse(BytesIO(page_content), htmlparser)
-    links = tree.xpath('//a/@href')
-    for link in links:
+    for link in page.links_to:
         parsed = ParsedURL(link)
 
         if not onion_regex.match(parsed.host):
@@ -55,7 +49,7 @@ for page in db.query(Page).filter(Page._content != None).order_by(Page.id):
             if parsed.host == domain.host:
                 exists = True
                 break
-        if not exists:
+        if parsed.host not in domains_by_host:
             continue
 
         link_iters[domains_by_id[page.domain_id].host + ":" + str(domains_by_id[page.domain_id].port)][parsed.host + ":" + str(parsed.port)] += 1
