@@ -9,7 +9,7 @@ from typing import Union
 import brotli
 from sqlalchemy import (ARRAY, Boolean, Column, DateTime, ForeignKey, Integer,
                         LargeBinary, String, Unicode, UnicodeText, and_,
-                        create_engine)
+                        create_engine, func)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (relationship, scoped_session, sessionmaker,
@@ -156,6 +156,7 @@ class Domain(Base):
 
     first_crawl = Column(DateTime(), nullable=False, default=now)
     last_crawl = Column(DateTime(), nullable=False, default=now)
+    alive = Column(Boolean, server_default='f')
 
     title = Column(Unicode)
     header_server = Column(Unicode)
@@ -214,7 +215,7 @@ class OnionListPage(Base):
         Page model for grabs of big onion lists.
     """
 
-    __tablename__ = "onionlist_pages"
+    __tablename__ = "onion_listpages"
     id = Column(Integer, primary_key=True)
 
     url = Column(String, nullable=False)
@@ -243,7 +244,20 @@ class OnionListPage(Base):
 
         self._content = brotli.compress(content)
 
+
+class OnionBlacklist(Base):
+    """
+        Model to store hashed blacklisted onions.
+    """
+
+    __tablename__ = "onion_blacklist"
+    id = Column(Integer, primary_key=True)
+
+    hexhash = Column(String, nullable=False)
+    source = Column(String, nullable=False)
+
 # Indexes
 Index("index_domain_host", Domain.host)
 Index("index_page_url", Page.url)
 Index("index_page_domain_id", Page.domain_id)
+Index("index_blacklist_hash", OnionBlacklist.hexhash)
