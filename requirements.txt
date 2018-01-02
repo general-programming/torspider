@@ -11,3 +11,4 @@ brotli
 praw
 raven
 scrapy-sentry
+txtorcon

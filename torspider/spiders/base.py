@@ -3,9 +3,9 @@ import re
 import scrapy
 from scrapy_redis.spiders import RedisSpider
 
+from spidercommon.constants import GOOD_STATUS_CODES
 from spidercommon.db import Domain, Page, db_session
 from spidercommon.urls import ParsedURL
-from spidercommon.constants import GOOD_STATUS_CODES
 
 
 class SpiderBase(RedisSpider):

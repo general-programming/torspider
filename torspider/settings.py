@@ -79,3 +79,9 @@ REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
 SENTRY_DSN = os.environ.get("SENTRY_DSN", None)
 if SENTRY_DSN:
     EXTENSIONS["scrapy_sentry.extensions.Errors"] = 10
+
+# Tor socks
+DOWNLOAD_HANDLERS = {
+    'http': 'torspider.transports.TorDownloadHandler',
+    'https': 'torspider.transports.TorDownloadHandler'
+} 

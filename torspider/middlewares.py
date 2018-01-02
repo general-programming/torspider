@@ -45,10 +45,9 @@ class FilterDomainByPageLimitMiddleware(object):
     @classmethod
     def from_crawler(cls, crawler):
         settings = crawler.settings
-        spider_name = crawler.spider.name
         max_pages = settings.get('MAX_PAGES_PER_DOMAIN')
-        o = cls(max_pages)
-        return o
+
+        return cls(max_pages)
 
     def process_request(self, request, spider):
         # Allow requests if the max pages is disabled.

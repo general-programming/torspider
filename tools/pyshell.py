@@ -2,12 +2,13 @@ import code
 import os
 import re
 import uuid
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urljoin, urlparse
 
 import praw
+
+from spidercommon.db import Domain, sm
 from spidercommon.redis import create_redis
 from spidercommon.regexes import onion_regex
-from spidercommon.db import Domain, sm
 
 # Connections
 

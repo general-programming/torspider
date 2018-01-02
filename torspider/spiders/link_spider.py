@@ -1,5 +1,6 @@
 from torspider.spiders.base import SpiderBase
 
+
 class LinkSpider(SpiderBase):
     """
         Spider that grabs single links and does not follow them.

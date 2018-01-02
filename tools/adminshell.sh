@@ -4,7 +4,7 @@
 if [ -d "/app/torspider" ]; then
     # Container
     apk update
-    http_proxy="" https_proxy="" apk add postgresql-client redis zsh busybox-extras nano less
+    socks_proxy="" apk add postgresql-client redis zsh busybox-extras nano less
     echo "alias redis-cli='redis-cli -h $REDIS_HOST -p $REDIS_PORT'" >> ~/.zshrc
     zsh -i
 else
