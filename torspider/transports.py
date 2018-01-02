@@ -18,24 +18,15 @@ class ScrapySocks5Agent(ScrapyAgent):
     def _get_agent(self, request, timeout):
         bindAddress = request.meta.get('bindaddress') or self._bindAddress
         proxy = os.environ.get("SOCKS_PROXY", request.meta.get('proxy'))
-        if proxy:
-            _proxy_protocol, _proxy_hostport, proxyHost, proxyPort, _proxy_params = _parse(proxy)
+        _proxy_protocol, _proxy_hostport, proxyHost, proxyPort, _proxy_params = _parse(proxy)
 
-            proxy_endpoint = TCP4ClientEndpoint(
-                reactor,
-                proxyHost,
-                proxyPort,
-                timeout=timeout, 
-                bindAddress=bindAddress
-            )
-            agent = txtorcon_web.tor_agent(reactor, socks_endpoint=proxy_endpoint)
-
-            return agent
-
-        return self._Agent(
+        proxy_endpoint = TCP4ClientEndpoint(
             reactor,
-            contextFactory=self._contextFactory,
-            connectTimeout=timeout,
-            bindAddress=bindAddress,
-            pool=self._pool
+            proxyHost,
+            proxyPort,
+            timeout=timeout, 
+            bindAddress=bindAddress
         )
+        agent = txtorcon_web.tor_agent(reactor, socks_endpoint=proxy_endpoint)
+
+        return agent

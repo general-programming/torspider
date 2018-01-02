@@ -1,6 +1,8 @@
+import os
 import re
 
 import scrapy
+from scrapy.exceptions import CloseSpider
 from scrapy_redis.spiders import RedisSpider
 
 from spidercommon.constants import GOOD_STATUS_CODES
@@ -30,6 +32,9 @@ class SpiderBase(RedisSpider):
 
     def setup_redis(self, *args, **kwargs):
         super().setup_redis(*args, **kwargs)
+
+        if "SOCKS_PROXY" not in os.environ:
+            raise CloseSpider("Refusing to run spider without a SOCKS proxy setup.")
 
         if not self.server.exists("torspider:firstrun"):
             self.server.set("torspider:firstrun", 1)
