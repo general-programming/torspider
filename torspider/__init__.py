@@ -1,3 +1,5 @@
+import os
 import coloredlogs
 
-coloredlogs.install(level='DEBUG')
+if 'COLORLOG' in os.environ:
+    coloredlogs.install(level='DEBUG')

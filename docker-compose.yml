@@ -33,7 +33,7 @@ services:
         REDIS_PORT: 6379
         SOCKS_PROXY: socks5://tor:5566
       env_file: .env
-      command: "scrapy crawl --nolog tordirectory"
+      command: "scrapy crawl -L INFO tordirectory"
       depends_on:
         - redis
         - tor
@@ -47,7 +47,7 @@ services:
         REDIS_PORT: 6379
         SOCKS_PROXY: socks5://tor:5566
       env_file: .env
-      command: "scrapy crawl --nolog torlink"
+      command: "scrapy crawl -L INFO torlink"
       depends_on:
         - redis
         - tor
