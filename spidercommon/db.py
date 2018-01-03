@@ -254,6 +254,7 @@ class OnionBlacklist(Base):
     id = Column(Integer, primary_key=True)
 
     hexhash = Column(String, nullable=False)
+    hashmethod = Column(String, nullable=False)
     source = Column(String, nullable=False)
 
 # Indexes
