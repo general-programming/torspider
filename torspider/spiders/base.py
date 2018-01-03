@@ -6,7 +6,7 @@ from scrapy.exceptions import CloseSpider
 from scrapy_redis.spiders import RedisSpider
 
 from spidercommon.constants import GOOD_STATUS_CODES
-from spidercommon.db import Domain, Page, db_session
+from spidercommon.model import Domain, Page, db_session
 from spidercommon.urls import ParsedURL
 
 

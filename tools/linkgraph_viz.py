@@ -1,8 +1,7 @@
 import json
-import re
 from collections import defaultdict
 
-from spidercommon.db import Domain, Page, sm
+from spidercommon.model import Domain, Page, sm
 from spidercommon.regexes import onion_regex
 from spidercommon.urls import ParsedURL
 

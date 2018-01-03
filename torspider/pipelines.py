@@ -5,7 +5,7 @@ from datetime import datetime
 
 from scrapy.exceptions import DropItem
 
-from spidercommon.db import Domain, Page, db_session
+from spidercommon.model import Domain, Page, db_session
 from spidercommon.redis import create_redis
 from spidercommon.urls import ParsedURL
 from spidercommon.util import lock_single, md5

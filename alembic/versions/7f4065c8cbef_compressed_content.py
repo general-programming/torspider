@@ -7,7 +7,7 @@ Create Date: 2017-12-15 14:51:36.872634
 """
 from alembic import op
 import sqlalchemy as sa
-from spidercommon.db import sm, Page
+from spidercommon.model import sm, Page
 
 
 # revision identifiers, used by Alembic.

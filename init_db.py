@@ -4,9 +4,9 @@ import os
 from alembic.config import Config
 from alembic import command
 from sqlalchemy.engine.reflection import Inspector
-from sqlalchemy.orm.exc import NoResultFound
 
-from spidercommon.db import Base, engine, sm
+from spidercommon.model import Base, engine
+
 
 def init_db():
     print(os.path.dirname(os.path.realpath(__file__)) + "/../../alembic.ini")

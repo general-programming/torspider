@@ -7,7 +7,6 @@
 
 import logging
 import time
-from collections import defaultdict
 
 from scrapy import signals
 from scrapy.dupefilters import BaseDupeFilter
@@ -15,7 +14,7 @@ from scrapy.exceptions import IgnoreRequest
 from scrapy.utils.request import request_fingerprint
 from scrapy_redis.connection import get_redis_from_settings
 
-from spidercommon.db import Domain, db_session
+from spidercommon.model import Domain
 from spidercommon.redis import create_redis
 from spidercommon.urls import ParsedURL
 

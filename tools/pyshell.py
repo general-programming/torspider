@@ -1,13 +1,10 @@
 import code
 import os
-import re
-import uuid
-from urllib.parse import urljoin, urlparse
 
 import praw
 import requests
 
-from spidercommon.db import Domain, OnionListPage, sm
+from spidercommon.model import Domain, OnionListPage, sm
 from spidercommon.redis import create_redis
 from spidercommon.regexes import onion_regex
 
