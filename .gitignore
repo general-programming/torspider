@@ -113,3 +113,6 @@ virtualenv/
 
 # App large files
 tools/data.js
+
+# IDE
+.idea/
