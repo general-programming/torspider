@@ -12,7 +12,7 @@ from spidercommon.tasks import WorkerTask, celery
 
 
 def fetch_ahmia_blacklist():
-    return [x for x in requests.get("https://ahmia.fi/blacklist/banned/").text.split("<br>\n\n") if x]
+    return [x.strip() for x in requests.get("https://ahmia.fi/blacklist/banned/").text.split("<br>\n\n") if x]
 
 @celery.task(base=WorkerTask)
 def update_blacklist():
