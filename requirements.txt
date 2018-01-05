@@ -12,7 +12,7 @@ praw
 raven
 scrapy-sentry
 txtorcon
-requests[socks]
+requests[socks,security]
 celery==4.1.0
 gevent>=1.2.2
 classtools==0.1

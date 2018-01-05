@@ -174,6 +174,7 @@ class Domain(Base):
     first_crawl = Column(DateTime(), nullable=False, default=now)
     last_crawl = Column(DateTime(), nullable=False, default=now)
     alive = Column(Boolean, server_default='f')
+    blacklisted = Column(Boolean, server_default='f')
 
     title = Column(Unicode)
     header_server = Column(Unicode)
