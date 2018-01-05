@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import insert
 
 from redis import StrictRedis
 
-from spidercommon.model import Domain, OnionBlacklist, session_scope
+from spidercommon.model import Page, Domain, OnionBlacklist, session_scope
 from spidercommon.regexes import onion_regex
 from spidercommon.tasks import WorkerTask, celery
 
@@ -37,3 +37,11 @@ def update_blacklist():
         for domain in db.query(Domain).yield_per(500):
             if md5(domain.host) in blacklist_md5:
                 domain.blacklisted = True
+
+@celery.task(base=WorkerTask)
+def wipe_blacklisted():
+    with session_scope() as db:
+        for domain in db.query(Domain).filter(Domain.blacklisted == True).yield_per(250):
+            for page in db.query(Page).filter(Page.domain_id == domain.id).yield_per(250):
+                page.content = "<h1>Nope.</h1>"
+            db.commit()

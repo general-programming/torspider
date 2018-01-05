@@ -49,4 +49,8 @@ CELERYBEAT_SCHEDULE = {
         "task": "spidercommon.tasks.onions.update_blacklist",
         "schedule": datetime.timedelta(days=1),
     },
+    "wipe_blacklisted": {
+        "task": "spidercommon.tasks.onions.wipe_blacklisted",
+        "schedule": datetime.timedelta(days=1, hours=6),
+    },
 }
