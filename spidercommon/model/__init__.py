@@ -271,7 +271,7 @@ class OnionBlacklist(Base):
     __tablename__ = "onion_blacklist"
     id = Column(Integer, primary_key=True)
 
-    hexhash = Column(String, nullable=False)
+    hexhash = Column(String, nullable=False, unique=True)
     hashmethod = Column(String, nullable=False)
     source = Column(String, nullable=False)
 
