@@ -43,7 +43,7 @@ services:
   celery:
     build: .
     restart: always
-    command: celery -A spidercommon.tasks worker
+    command: celery -A spidercommon.tasks -P gevent --autoscale=16,8 worker
     links:
       - redis
     environment:
@@ -52,6 +52,7 @@ services:
       SOCKS_PROXY: socks5://tor:5566
       CELERY_BROKER: redis://redis:6379/1
       CELERY_RESULT: redis://redis:6379/1
+    env_file: .env
 
   beat:
     build: .
@@ -65,6 +66,7 @@ services:
       SOCKS_PROXY: socks5://tor:5566
       CELERY_BROKER: redis://redis:6379/1
       CELERY_RESULT: redis://redis:6379/1
+    env_file: .env
 
 volumes:
   redis:
