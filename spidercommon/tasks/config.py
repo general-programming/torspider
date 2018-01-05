@@ -11,6 +11,11 @@ if "DEBUG" in os.environ:
 BROKER_URL = os.environ.get("CELERY_BROKER", "redis://localhost/1")
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT", "redis://localhost/1")
 
+BROKER_TRANSPORT_OPTIONS = {
+    "fanout_prefix": True,
+    "fanout_patterns": True
+}
+
 # Time
 CELERY_TIMEZONE = "UTC"
 CELERY_ENABLE_UTC = True
