@@ -21,7 +21,8 @@ from spidercommon.constants import GOOD_STATUS_CODES
 from spidercommon.redis import create_redis
 from spidercommon.regexes import onion_regex
 from spidercommon.urls import ParsedURL
-from spidercommon.util import lock_single, md5
+from spidercommon.util.distribution import lock_single
+from spidercommon.util.hashing import md5
 
 debug = os.environ.get('DEBUG', False)
 

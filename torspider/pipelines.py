@@ -8,7 +8,8 @@ from scrapy.exceptions import DropItem
 from spidercommon.model import Domain, Page, db_session
 from spidercommon.redis import create_redis
 from spidercommon.urls import ParsedURL
-from spidercommon.util import lock_single, md5
+from spidercommon.util.distribution import lock_single
+from spidercommon.util.hashing import md5
 
 # Define your item pipelines here
 #
