@@ -64,7 +64,9 @@ class DatabasePipeline(object):
         page.status_code = item["status_code"]
         page.last_crawl = now
         page.size = item["size"]
-        if page.content != item["content"]:
+        if domain.blacklisted:
+            page.content = "<h1>Nope.</h1>"
+        elif page.content != item["content"]:
             page.content = item["content"]
         page.header_server = item["server"]
         page.header_powered_by = item["powered_by"]
