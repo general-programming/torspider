@@ -4,8 +4,8 @@ psycopg2
 scrapy
 coloredlogs
 timeout-decorator
-redis
-hiredis
+redis>=2.10.5
+hiredis>=0.2.0
 scrapy-redis
 brotli
 praw
@@ -13,3 +13,7 @@ raven
 scrapy-sentry
 txtorcon
 requests[socks]
+celery==4.1.0
+gevent>=1.2.2
+classtools==0.1
+msgpack-python>=0.3.0

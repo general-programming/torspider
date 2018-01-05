@@ -3,6 +3,7 @@ import datetime
 import os
 import re
 import time
+from contextlib import contextmanager
 from functools import wraps
 from typing import Union
 
@@ -63,6 +64,21 @@ def db_session(f):
         finally:
             db.close()
     return decorated_function
+
+
+@contextmanager
+def session_scope():
+    """Provide a transactional scope around a series of operations."""
+    session = sm()
+    try:
+        yield session
+        session.commit()
+    except:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
 
 class Page(Base):
     __tablename__ = "pages"

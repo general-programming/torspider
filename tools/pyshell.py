@@ -9,18 +9,13 @@ import requests
 
 from spidercommon.model import Domain, OnionListPage, sm
 from spidercommon.redis import create_redis
-from spidercommon.tasks.pages import PageFetcher, find_onions
-from spidercommon.tasks.reddit import RedditFetcher
+from spidercommon.tasks.pages import check_page, check_ports_for_all_domains, fetch_page_for_all_domains, find_onions
+from spidercommon.tasks.reddit import fetch_subreddit
 
 # Connections
 
 db = sm()
 redis = create_redis()
-
-# Task classes
-
-page_fetcher = PageFetcher(db, redis)
-reddit_fetcher = RedditFetcher(redis)
 
 # CLI functions
 

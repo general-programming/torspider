@@ -10,6 +10,14 @@ services:
     expose:
       - 6379
 
+  rabbitmq:
+    image: rabbitmq:3.7.2-management-alpine
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: torspider
+      RABBITMQ_DEFAULT_PASS: development
+      RABBITMQ_DEFAULT_VHOST: torspider
+
   tor:
     build:
       context: containers/tor
@@ -32,11 +40,41 @@ services:
         REDIS_HOST: redis
         REDIS_PORT: 6379
         SOCKS_PROXY: socks5://tor:5566
+        CELERY_BROKER: amqp://torspider:development@rabbitmq:5672/torspider
+        CELERY_RESULT: redis://redis:6379/1
       env_file: .env
       command: "python torspider"
       depends_on:
         - redis
         - tor
+
+  celery:
+    build: .
+    restart: always
+    command: celery -A spidercommon.tasks worker
+    links:
+      - redis
+      - rabbitmq
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SOCKS_PROXY: socks5://tor:5566
+      CELERY_BROKER: amqp://torspider:development@rabbitmq:5672/torspider
+      CELERY_RESULT: redis://redis:6379/1
+
+  beat:
+    build: .
+    restart: always
+    command: celery -A spidercommon.tasks beat
+    links:
+      - redis
+      - rabbitmq
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SOCKS_PROXY: socks5://tor:5566
+      CELERY_BROKER: amqp://torspider:development@rabbitmq:5672/torspider
+      CELERY_RESULT: redis://redis:6379/1
 
 volumes:
   redis:

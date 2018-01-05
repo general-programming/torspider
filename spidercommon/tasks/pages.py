@@ -3,34 +3,33 @@ from urllib.parse import urljoin
 
 from redis import StrictRedis
 
-from spidercommon.model import Domain, sm
+from spidercommon.model import Domain, session_scope
 from spidercommon.regexes import onion_regex
+from spidercommon.tasks import WorkerTask, celery
 
 DEFAULT_HTTP_PORTS = [80, 5000, 5800, 8000, 8008, 8080]
 
 
-class PageFetcher:
-    def __init__(self, redis: StrictRedis, db: sm=None):
-        self.db = db
-        self.redis = redis
+@celery.task(base=WorkerTask)
+def fetch_page_for_all_domains(page: str):
+    redis = fetch_page_for_all_domains.redis
 
-    def fetch_page_for_all_domains(self, page: str):
-        if not self.db:
-            raise Exception("db is required to run this function.")
+    with session_scope() as db:
+        for domain in db.query(Domain):
+            check_page(redis, domain.host, domain.port, page)
 
-        for domain in self.db.query(Domain):
-            check_page(self.redis, domain.host, domain.port, page)
 
-    def check_ports_for_all_domains(self, ports: Optional[List[int]]=None):
-        if not self.db:
-            raise Exception("db is required to run this function.")
+@celery.task(base=WorkerTask)
+def check_ports_for_all_domains(ports: Optional[List[int]]=None):
+    redis = check_ports_for_all_domains.redis
 
-        if not ports:
-            ports = DEFAULT_HTTP_PORTS.copy()
+    if not ports:
+        ports = DEFAULT_HTTP_PORTS.copy()
 
-        for domain in self.db.query(Domain):
+    with session_scope() as db:
+        for domain in db.query(Domain):
             for port in ports:
-                check_page(self.redis, domain.host, port)
+                check_page(redis, domain.host, port)
 
 
 def check_page(redis: StrictRedis, host: str, port: int=80, path: str="", single: bool=False):
