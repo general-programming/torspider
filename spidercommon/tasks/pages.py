@@ -41,9 +41,9 @@ def check_page(redis: StrictRedis, host: str, port: int=80, path: str="", single
     joined_url = urljoin(joined_url, path)
 
     if single:
-        redis.sadd("torspider:singleurls", joined_url)
+        redis.sadd("queue:singleurls", joined_url)
     else:
-        redis.sadd("torspider:urls", joined_url)
+        redis.sadd("queue:urls", joined_url)
 
 
 def find_onions(redis: StrictRedis, content: str):

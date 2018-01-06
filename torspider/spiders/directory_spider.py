@@ -17,7 +17,7 @@ class DirectorySpider(SpiderBase):
         'MAX_PAGES_PER_DOMAIN' : 2000,
         # scrapy_redis middleware
         'REDIS_START_URLS_AS_SET': True,
-        'REDIS_START_URLS_KEY': 'torspider:urls',
+        'REDIS_START_URLS_KEY': 'queue:urls',
     }
 
     follow_links = True

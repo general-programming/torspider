@@ -17,7 +17,7 @@ class LinkSpider(SpiderBase):
         'MAX_PAGES_PER_DOMAIN' : -1,
         # scrapy_redis middleware
         'REDIS_START_URLS_AS_SET': True,
-        'REDIS_START_URLS_KEY': 'torspider:singleurls',
+        'REDIS_START_URLS_KEY': 'queue:singleurls',
     }
 
     follow_links = False
