@@ -70,6 +70,7 @@ class DatabasePipeline(object):
             page.content = item["content"]
         page.header_server = item["server"]
         page.header_powered_by = item["powered_by"]
+        page.title = item["title"]
 
         # Update links to.
         page.links_to = list(item["links_to"])
