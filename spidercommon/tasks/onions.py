@@ -14,6 +14,9 @@ from spidercommon.tasks import WorkerTask, celery
 def fetch_ahmia_blacklist():
     return [x.strip() for x in requests.get("https://ahmia.fi/blacklist/banned/").text.split("<br>\n\n") if x]
 
+BLACKLISTED_BLANK = "<h1>Nope.</h1>"
+
+
 @celery.task(base=WorkerTask)
 def update_blacklist():
     redis = update_blacklist.redis
@@ -43,5 +46,6 @@ def wipe_blacklisted():
     with session_scope() as db:
         for domain in db.query(Domain).filter(Domain.blacklisted == True).yield_per(250):
             for page in db.query(Page).filter(Page.domain_id == domain.id).yield_per(250):
-                page.content = "<h1>Nope.</h1>"
+                if page.content != BLACKLISTED_BLANK:
+                    page.content = BLACKLISTED_BLANK
             db.commit()
