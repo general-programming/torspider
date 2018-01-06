@@ -1,14 +1,14 @@
-import requests
 from typing import List, Optional
 from urllib.parse import urljoin
-from spidercommon.util.hashing import md5
+
+import requests
+from redis import StrictRedis
 from sqlalchemy.dialects.postgresql import insert
 
-from redis import StrictRedis
-
-from spidercommon.model import Page, Domain, OnionBlacklist, session_scope
+from spidercommon.model import Domain, OnionBlacklist, Page, session_scope
 from spidercommon.regexes import onion_regex
 from spidercommon.tasks import WorkerTask, celery
+from spidercommon.util.hashing import md5
 
 
 def fetch_ahmia_blacklist():
