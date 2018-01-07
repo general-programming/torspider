@@ -205,6 +205,6 @@ class SpiderBase(RedisSpider):
             if len(page_metadata["links_to"]) <= 5:
                 self.logger.debug("link_to_list len %s %s" % (len(page_metadata["links_to"]), page_metadata["links_to"]))
             else:
-                self.logger.debug("link_to_list len %s truncated" % (len(page_metadata["links_to"]), page_metadata["links_to"]))
+                self.logger.debug("link_to_list len %s truncated" % (len(page_metadata["links_to"])))
 
         return page_metadata
