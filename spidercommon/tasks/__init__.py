@@ -31,7 +31,3 @@ class WorkerTask(Task):
     @reify
     def redis(self):
         return StrictRedis(connection_pool=redis_pool)
-
-    def after_return(self, *args, **kwargs):
-        if hasattr(self, "redis"):
-            del self.redis

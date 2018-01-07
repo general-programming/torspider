@@ -10,6 +10,7 @@ from spidercommon.model import Domain, OnionBlacklist, Page, session_scope
 from spidercommon.regexes import onion_regex
 from spidercommon.tasks import WorkerTask, celery
 from spidercommon.util.compat import random
+from spidercommon.util.distribution import queue_url
 from spidercommon.util.hashing import md5
 
 
@@ -67,6 +68,6 @@ def queue_alivecheck():
             probablity = (10 ** (1/58)) ** time_hours
             if probablity > random.randint(0, 100):
                 if port == 80:
-                    redis.sadd("queue:singleurls", f"http://{domain.host}.onion")
+                    queue_url(redis, domain.priority, "singleurls", f"http://{domain.host}.onion")
                 else:
-                    redis.sadd("queue:singleurls", f"http://{domain.host}.onion:{domain.port}")
+                    queue_url(redis, domain.priority, "singleurls", f"http://{domain.host}.onion:{domain.port}")

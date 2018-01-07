@@ -228,6 +228,19 @@ class Domain(Base):
         except:
             return False
 
+    @property
+    def priority(self):
+        priority = 0
+
+        # Try not to scrape dead sites.
+        if not self.alive:
+            priority -= 1
+
+        # TODO: Average response and page count metrics should be considered here.
+
+        return priority
+
+
 class OnionListPage(Base):
     """
         Page model for grabs of big onion lists.

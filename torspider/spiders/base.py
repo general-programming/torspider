@@ -1,13 +1,16 @@
+import json
 import os
 import re
 
 import scrapy
 from scrapy.exceptions import CloseSpider
 from scrapy_redis.spiders import RedisSpider
+from scrapy_redis.utils import bytes_to_str
 
 from spidercommon.constants import GOOD_STATUS_CODES
 from spidercommon.model import Domain, Page, db_session
 from spidercommon.urls import ParsedURL
+from spidercommon.util.distribution import queue_url
 
 
 class SpiderBase(RedisSpider):
@@ -38,12 +41,26 @@ class SpiderBase(RedisSpider):
 
         if not self.server.exists("torspider:firstrun"):
             self.server.set("torspider:firstrun", 1)
-            self.server.sadd("queue:urls", *self.clean_start_urls)
+            queue_url(self.server, 0, "urls", *self.clean_start_urls)
             self.server.execute_command("BF.RESERVE", "spider:visitedurls", 0.001, 100000000)
 
         if hasattr(self, "passed_url"):
             #pylint: disable=E1101
-            self.server.sadd("queue:urls", self.passed_url)
+            queue_url(self.server, 0, "urls", self.passed_url)
+
+    def make_request_from_data(self, data):
+        try:
+            data = json.loads(data)
+            if not isinstance(data, dict):
+                self.logger.warn("Somehow got a %s instead of a dict for data." % (type(data)))
+                raise TypeError("Data is not a dict.")
+        except (json.JSONDecodeError, TypeError):
+            return super().make_request_from_data(self, data)
+
+        request = self.make_requests_from_url(data["url"])
+        request.priority = data.get("priority", 0)
+
+        return request
 
     @db_session
     def parse(self, response, db=None):

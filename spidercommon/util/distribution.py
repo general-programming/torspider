@@ -35,3 +35,14 @@ def lock_single(redis, lock_name: str, lock_expire: int=5) -> bool:
     # We didn't get the lock. :(
     time.sleep(random.uniform(0.1, 1))
     return False
+
+
+def queue_url(redis, priority: int=0, queue: str="urls", *urls: str):
+    queue_key = f"queue:{queue}"
+    for url in urls:
+        payload = {
+            "url": url,
+            "priority": priority
+        }
+
+        redis.sadd(queue_key, json.dumps(payload))

@@ -6,6 +6,7 @@ from redis import StrictRedis
 from spidercommon.model import Domain, session_scope
 from spidercommon.regexes import onion_regex
 from spidercommon.tasks import WorkerTask, celery
+from spidercommon.util.distribution import queue_url
 
 DEFAULT_HTTP_PORTS = [80, 5000, 5800, 8000, 8008, 8080]
 
@@ -41,9 +42,9 @@ def check_page(redis: StrictRedis, host: str, port: int=80, path: str="", single
     joined_url = urljoin(joined_url, path)
 
     if single:
-        redis.sadd("queue:singleurls", joined_url)
+        queue_url(redis, 0, "singleurls", joined_url)
     else:
-        redis.sadd("queue:urls", joined_url)
+        queue_url(redis, 0, "urls", joined_url)
 
 
 def find_onions(redis: StrictRedis, content: str):
