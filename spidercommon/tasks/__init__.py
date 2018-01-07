@@ -1,3 +1,4 @@
+# coding=utf-8
 import os
 
 import raven
@@ -24,6 +25,7 @@ if "SENTRY_DSN" in os.environ:
     register_signal(sentry)
 
 celery.config_from_object('spidercommon.tasks.config')
+
 
 class WorkerTask(Task):
     abstract = True

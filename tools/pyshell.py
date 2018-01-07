@@ -18,6 +18,7 @@ from spidercommon.tasks.reddit import fetch_subreddit
 db = sm()
 redis = create_redis()
 
+
 # CLI functions
 
 def purge_dupekeys(list_key="torspider:dupekeys:dupefilter"):
@@ -39,6 +40,7 @@ def grab_onions(url: str):
     db_entry.content = request.text
     db.commit()
     find_onions(redis, request.text)
+
 
 if __name__ == "__main__":
     code.interact(local=locals())

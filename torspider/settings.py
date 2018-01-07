@@ -47,8 +47,8 @@ SPIDER_MIDDLEWARES = {
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-    'torspider.middlewares.FilterTooManySubdomainsMiddleware' : 300,
-    'torspider.middlewares.FilterDomainByPageLimitMiddleware' : 550,
+    'torspider.middlewares.FilterTooManySubdomainsMiddleware': 300,
+    'torspider.middlewares.FilterDomainByPageLimitMiddleware': 550,
 }
 
 # Enable or disable extensions
@@ -58,12 +58,12 @@ EXTENSIONS = {}
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'torspider.pipelines.DatabasePipeline': 100,
+    'torspider.pipelines.DatabasePipeline': 100,
 }
 
 # Our special sauce
 RETRY_TIMES = 1
-DOWNLOAD_TIMEOUT = 90 # XXX: Why is 90 seconds the timeout?
+DOWNLOAD_TIMEOUT = 90  # XXX: Why is 90 seconds the timeout?
 DEPTH_PRIORITY = 8
 CONCURRENT_REQUESTS = 128
 REACTOR_THREADPOOL_MAXSIZE = 32
@@ -82,6 +82,8 @@ REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
 SENTRY_DSN = os.environ.get("SENTRY_DSN", None)
 if SENTRY_DSN:
     client = Client(dsn=SENTRY_DSN)
+
+
     def log_sentry(dictionary):
         if dictionary.get('isError') and 'failure' in dictionary:
             try:
@@ -90,10 +92,12 @@ if SENTRY_DSN:
             except:
                 # so we can capture it here.
                 client.captureException()
+
+
     log.addObserver(log_sentry)
 
 # Tor socks
 DOWNLOAD_HANDLERS = {
     'http': 'torspider.transports.TorDownloadHandler',
     'https': 'torspider.transports.TorDownloadHandler'
-} 
+}

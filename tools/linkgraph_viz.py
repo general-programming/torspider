@@ -42,12 +42,6 @@ for page in db.query(Page).filter(Page.links_to != "{}").order_by(Page.id).yield
         if not onion_regex.match(parsed.host):
             continue
 
-        # XXX: This is bad.
-        exists = False
-        for _id, domain in domains_by_id.items():
-            if parsed.host == domain.host:
-                exists = True
-                break
         if parsed.host not in domains_by_host:
             continue
 

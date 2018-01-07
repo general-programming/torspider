@@ -1,3 +1,4 @@
+# coding=utf-8
 from torspider.spiders.base import SpiderBase
 
 
@@ -14,7 +15,7 @@ class LinkSpider(SpiderBase):
         # This is assuming that the spider has a fast connection to Tor.
         "DOWNLOAD_TIMEOUT": 35,
         # Middleware
-        'MAX_PAGES_PER_DOMAIN' : -1,
+        'MAX_PAGES_PER_DOMAIN': -1,
         # scrapy_redis middleware
         'REDIS_START_URLS_AS_SET': True,
         'REDIS_START_URLS_KEY': 'queue:singleurls',

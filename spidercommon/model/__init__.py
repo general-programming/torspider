@@ -47,8 +47,10 @@ base_session = scoped_session(sm)
 Base = declarative_base()
 Base.query = base_session.query_property()
 
+
 def now():
     return datetime.datetime.utcnow()
+
 
 def db_session(f):
     @wraps(f)
@@ -63,6 +65,7 @@ def db_session(f):
             return f(db=db, *args, **kwargs)
         finally:
             db.close()
+
     return decorated_function
 
 
@@ -103,9 +106,9 @@ class Page(Base):
     domain = relationship("Domain")
 
     @property
-    def content(self):
+    def content(self) -> Union[str, bytes]:
         if not self._content:
-            return None
+            return ""
 
         decompressed = brotli.decompress(self._content)
         try:
@@ -116,7 +119,7 @@ class Page(Base):
         return decompressed
 
     @content.setter
-    def content(self, content) -> Union[str, bytes]:
+    def content(self, content: Union[str, bytes]):
         if isinstance(content, str):
             content = content.encode("utf8")
 
@@ -124,7 +127,6 @@ class Page(Base):
 
     @classmethod
     def find_stub_by_url(cls, url: str, db):
-        now = datetime.datetime.now()
         page = db.query(Page).filter(Page.url == url).scalar()
 
         if not page:
@@ -141,7 +143,7 @@ class Page(Base):
 
     @property
     def got_server_response(self):
-        return (self.status_code in GOOD_STATUS_CODES)
+        return self.status_code in GOOD_STATUS_CODES
 
     @staticmethod
     def is_frontpage_url(url):
@@ -162,6 +164,7 @@ class Page(Base):
                     return True
 
         return False
+
 
 class Domain(Base):
     __tablename__ = "domains"
@@ -225,7 +228,7 @@ class Domain(Base):
                 return True
             else:
                 return False
-        except:
+        except TypeError:
             return False
 
     @property
@@ -263,9 +266,9 @@ class OnionListPage(Base):
     _content = Column("content", LargeBinary)
 
     @property
-    def content(self):
+    def content(self) -> Union[str, bytes]:
         if not self._content:
-            return None
+            return ""
 
         decompressed = brotli.decompress(self._content)
         try:
@@ -276,7 +279,7 @@ class OnionListPage(Base):
         return decompressed
 
     @content.setter
-    def content(self, content) -> Union[str, bytes]:
+    def content(self, content: Union[str, bytes]):
         if isinstance(content, str):
             content = content.encode("utf8")
 
@@ -294,6 +297,7 @@ class OnionBlacklist(Base):
     hexhash = Column(String, nullable=False, unique=True)
     hashmethod = Column(String, nullable=False)
     source = Column(String, nullable=False)
+
 
 # Indexes
 Index("index_domain_host", Domain.host)

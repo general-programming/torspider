@@ -1,3 +1,4 @@
+# coding=utf-8
 import json
 import os
 import re
@@ -17,7 +18,6 @@ from spidercommon.util.hashing import md5
 
 
 class SpiderBase(RedisSpider):
-    
     allowed_domains = ['onion']
 
     spider_exclude = [
@@ -48,7 +48,7 @@ class SpiderBase(RedisSpider):
             self.server.execute_command("BF.RESERVE", "spider:visitedurls", 0.001, 100000000)
 
         if hasattr(self, "passed_url"):
-            #pylint: disable=E1101
+            # pylint: disable=E1101
             queue_url(self.server, 0, "tordirectory", self.passed_url)
 
     def make_request_from_data(self, data):
@@ -58,7 +58,7 @@ class SpiderBase(RedisSpider):
                 self.logger.warn("Somehow got a %s instead of a dict for data." % (type(data)))
                 raise TypeError("Data is not a dict.")
         except (json.JSONDecodeError, TypeError):
-            return super().make_request_from_data(self, data)
+            return super().make_request_from_data(data)
 
         request = self.make_requests_from_url(data["url"])
         request.priority = data.get("priority", 0)
@@ -167,7 +167,7 @@ class SpiderBase(RedisSpider):
         content_type = str(response.headers.get("Content-Type"))
         if got_server_response and content_type and re.match('^text/', content_type.strip()):
             is_text = True
-        
+
         # Update links_to
         if parsed.host not in self.spider_exclude:
             for url in response.xpath('//a/@href').extract():
@@ -205,9 +205,18 @@ class SpiderBase(RedisSpider):
                     page_metadata["other_links"].add(fullurl)
 
             if len(page_metadata["links_to"]) <= 5:
-                self.logger.debug("link_to_list len %s %s" % (len(page_metadata["links_to"]), page_metadata["links_to"]))
+                self.logger.debug(
+                    "link_to_list len %s %s" % (
+                        len(page_metadata["links_to"]),
+                        page_metadata["links_to"]
+                    )
+                )
             else:
-                self.logger.debug("link_to_list len %s truncated" % (len(page_metadata["links_to"])))
+                self.logger.debug(
+                    "link_to_list len %s truncated" % (
+                        len(page_metadata["links_to"])
+                    )
+                )
 
         return page_metadata
 

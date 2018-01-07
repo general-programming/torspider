@@ -1,3 +1,4 @@
+# coding=utf-8
 import datetime
 from typing import List, Optional
 from urllib.parse import urljoin
@@ -16,6 +17,7 @@ from spidercommon.util.hashing import md5
 
 def fetch_ahmia_blacklist():
     return [x.strip() for x in requests.get("https://ahmia.fi/blacklist/banned/").text.split("<br>\n\n") if x]
+
 
 BLACKLISTED_BLANK = "<h1>Nope.</h1>"
 
@@ -65,7 +67,7 @@ def queue_alivecheck():
             time_hours = (time_delta.total_seconds() / 60) / 24
 
             # Dirty exponential that guarantees that the function runs by the time last crawl reaches 4 days, 20 hours.
-            probablity = (10 ** (1/58)) ** time_hours
+            probablity = (10 ** (1 / 58)) ** time_hours
             if probablity > random.randint(0, 100):
                 if domain.port == 80:
                     queue_url(redis, domain.priority, "torlink", f"http://{domain.host}")

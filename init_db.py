@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# coding=utf-8
 import os
 
 from alembic.config import Config
@@ -20,6 +21,7 @@ def init_db():
 
     alembic_cfg = Config(os.path.dirname(os.path.realpath(__file__)) + "/./alembic.ini")
     command.stamp(alembic_cfg, "head")
+
 
 if __name__ == "__main__":
     init_db()

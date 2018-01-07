@@ -18,7 +18,6 @@ from spidercommon.model import Domain
 from spidercommon.redis import create_redis
 from spidercommon.urls import ParsedURL
 
-
 MAX_PAGES_SCRIPT = """
 local domain = ARGV[1]
 local max_pages = tonumber(ARGV[2])
@@ -67,10 +66,8 @@ class FilterDomainByPageLimitMiddleware(object):
 
         return None
 
-class FilterTooManySubdomainsMiddleware(object):
-    def __init__(self):
-        logger = logging.getLogger()
 
+class FilterTooManySubdomainsMiddleware(object):
     @classmethod
     def from_crawler(cls, crawler):
         o = cls()
