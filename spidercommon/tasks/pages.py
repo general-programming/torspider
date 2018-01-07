@@ -42,9 +42,9 @@ def check_page(redis: StrictRedis, host: str, port: int=80, path: str="", single
     joined_url = urljoin(joined_url, path)
 
     if single:
-        queue_url(redis, 0, "singleurls", joined_url)
+        queue_url(redis, 0, "torlink", joined_url)
     else:
-        queue_url(redis, 0, "urls", joined_url)
+        queue_url(redis, 0, "tordirectory", joined_url)
 
 
 def find_onions(redis: StrictRedis, content: str):

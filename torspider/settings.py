@@ -71,6 +71,7 @@ RETRY_HTTP_CODES = [500, 502, 503, 504, 408, 400]
 # Redis
 SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 SCHEDULER_PERSIST = True
+SCHEDULER_QUEUE_KEY = "zqueue:%(spider)s"
 DUPEFILTER_CLASS = "torspider.middlewares.RedisCustomDupeFilter"
 REDIS_HOST = os.environ.get('REDIS_PORT_6379_TCP_ADDR', os.environ.get('REDIS_HOST', '127.0.0.1'))
 REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))

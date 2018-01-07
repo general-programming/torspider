@@ -1,7 +1,11 @@
 import json
+import pickle
 import random
 import time
 import uuid
+
+from scrapy import Request
+from scrapy.utils.reqser import request_to_dict
 
 
 def lock_single(redis, lock_name: str, lock_expire: int=5) -> bool:
@@ -38,12 +42,13 @@ def lock_single(redis, lock_name: str, lock_expire: int=5) -> bool:
     return False
 
 
-def queue_url(redis, priority: int=0, queue: str="urls", *urls: str):
-    queue_key = f"queue:{queue}"
+def queue_url(redis, priority: int=0, spider: str="tordirectory", *urls: str):
+    queue_key = f"zqueue:{spider}"
     for url in urls:
-        payload = {
-            "url": url,
-            "priority": priority
-        }
+        payload = pickle.dumps(request_to_dict(Request(
+            url,
+            dont_filter=True,
+            priority=priority
+        )))
 
-        redis.sadd(queue_key, json.dumps(payload))
+        redis.execute_command('ZADD', queue_key, -priority, payload)

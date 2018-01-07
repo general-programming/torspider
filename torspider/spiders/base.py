@@ -42,12 +42,12 @@ class SpiderBase(RedisSpider):
 
         if not self.server.exists("torspider:firstrun"):
             self.server.set("torspider:firstrun", 1)
-            queue_url(self.server, 0, "urls", *self.clean_start_urls)
+            queue_url(self.server, 0, "tordirectory", *self.clean_start_urls)
             self.server.execute_command("BF.RESERVE", "spider:visitedurls", 0.001, 100000000)
 
         if hasattr(self, "passed_url"):
             #pylint: disable=E1101
-            queue_url(self.server, 0, "urls", self.passed_url)
+            queue_url(self.server, 0, "tordirectory", self.passed_url)
 
     def make_request_from_data(self, data):
         try:
