@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from urllib.parse import urljoin
 
 import scrapy
 from scrapy.exceptions import CloseSpider
@@ -169,18 +170,38 @@ class SpiderBase(RedisSpider):
         # Update links_to
         if parsed.host not in self.spider_exclude:
             for url in response.xpath('//a/@href').extract():
-                fullurl = response.urljoin(url)
+                # Split thhe URL for any onion to clean out web to onion services if they exist.
+                fullurl_parts = response.urljoin(url).split(".onion", 1)
 
-                if got_server_response and Domain.is_onion_url(fullurl):
-                    try:
-                        parsed_link = ParsedURL(fullurl)
-                    except:
-                        continue
+                # Skip this URL if it has only one part. Onions should have two parts.
+                if len(fullurl_parts) == 1:
+                    self.logger.debug(f"Stage 1 dropping non-onion URL '{fullurl_parts[0]}'.")
+                    continue
+
+                # Some people did things like qwertyuiop.onion.onion/index.php. No idea why but this happened.
+                while fullurl_parts[1].startswith(".onion"):
+                    fullurl_parts[1] = fullurl_parts[1].lstrip(".onion")
+
+                # Merge the parts back together.
+                fullurl = urljoin(fullurl_parts[0] + ".onion", fullurl_parts[1])
+
+                # Do additional checks post-merge just in case things happen.
+                if not got_server_response:
+                    self.logger.debug(f"Did not get server response from '{fullurl}'.")
+                elif not Domain.is_onion_url(fullurl):
+                    self.logger.debug(f"Stage 2 dropping non-onion URL '{fullurl_parts[0]}'.")
+
+                # Parse the link and update the lists.
+                try:
+                    parsed_link = ParsedURL(fullurl)
                     link_host = parsed_link.host
-                    if parsed.host != link_host:
-                        page_metadata["links_to"].add(fullurl)
-                    else:
-                        page_metadata["other_links"].add(fullurl)
+                except:
+                    continue
+
+                if parsed.host != link_host:
+                    page_metadata["links_to"].add(fullurl)
+                else:
+                    page_metadata["other_links"].add(fullurl)
 
             self.log("link_to_list %s" % page_metadata["links_to"])
 

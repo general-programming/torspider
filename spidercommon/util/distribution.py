@@ -1,7 +1,7 @@
+import json
 import random
 import time
 import uuid
-import json
 
 
 def lock_single(redis, lock_name: str, lock_expire: int=5) -> bool:

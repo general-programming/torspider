@@ -9,6 +9,7 @@ import requests
 
 from spidercommon.model import Domain, OnionListPage, sm
 from spidercommon.redis import create_redis
+from spidercommon.tasks.onions import queue_alivecheck
 from spidercommon.tasks.pages import check_page, check_ports_for_all_domains, fetch_page_for_all_domains, find_onions
 from spidercommon.tasks.reddit import fetch_subreddit
 
