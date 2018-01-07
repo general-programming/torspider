@@ -67,7 +67,7 @@ def queue_alivecheck():
             # Dirty exponential that guarantees that the function runs by the time last crawl reaches 4 days, 20 hours.
             probablity = (10 ** (1/58)) ** time_hours
             if probablity > random.randint(0, 100):
-                if port == 80:
+                if domain.port == 80:
                     queue_url(redis, domain.priority, "singleurls", f"http://{domain.host}.onion")
                 else:
                     queue_url(redis, domain.priority, "singleurls", f"http://{domain.host}.onion:{domain.port}")
