@@ -9,7 +9,7 @@ from scrapy_redis.spiders import RedisSpider
 from scrapy_redis.utils import bytes_to_str
 
 from spidercommon.constants import GOOD_STATUS_CODES
-from spidercommon.model import Domain, Page, db_session
+from spidercommon.model import Domain, Page
 from spidercommon.urls import ParsedURL
 from spidercommon.util.distribution import queue_url
 
@@ -63,9 +63,8 @@ class SpiderBase(RedisSpider):
 
         return request
 
-    @db_session
-    def parse(self, response, db=None):
-        page_metadata = self.parse_page_info(response, db)
+    def parse(self, response):
+        page_metadata = self.parse_page_info(response)
 
         if not page_metadata:
             return None
@@ -98,7 +97,7 @@ class SpiderBase(RedisSpider):
 
         yield page_metadata
 
-    def parse_page_info(self, response, db=None):
+    def parse_page_info(self, response):
         """
             Parses the page meta information for the pipeline.
 
@@ -207,7 +206,5 @@ class SpiderBase(RedisSpider):
                 self.logger.debug("link_to_list len %s %s" % (len(page_metadata["links_to"]), page_metadata["links_to"]))
             else:
                 self.logger.debug("link_to_list len %s truncated" % (len(page_metadata["links_to"]), page_metadata["links_to"]))
-
-            db.commit()
 
         return page_metadata
