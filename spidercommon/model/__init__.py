@@ -48,7 +48,7 @@ Base = declarative_base()
 Base.query = base_session.query_property()
 
 def now():
-    return datetime.datetime.now()
+    return datetime.datetime.utcnow()
 
 def db_session(f):
     @wraps(f)

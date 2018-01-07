@@ -1,3 +1,4 @@
+import datetime
 from typing import List, Optional
 from urllib.parse import urljoin
 
@@ -8,6 +9,7 @@ from sqlalchemy.dialects.postgresql import insert
 from spidercommon.model import Domain, OnionBlacklist, Page, session_scope
 from spidercommon.regexes import onion_regex
 from spidercommon.tasks import WorkerTask, celery
+from spidercommon.util.compat import random
 from spidercommon.util.hashing import md5
 
 
@@ -41,6 +43,7 @@ def update_blacklist():
             if md5(domain.host) in blacklist_md5:
                 domain.blacklisted = True
 
+
 @celery.task(base=WorkerTask)
 def wipe_blacklisted():
     with session_scope() as db:
@@ -49,3 +52,21 @@ def wipe_blacklisted():
                 if page.content != BLACKLISTED_BLANK:
                     page.content = BLACKLISTED_BLANK
             db.commit()
+
+
+@celery.task(base=WorkerTask)
+def queue_alivecheck():
+    redis = queue_alivecheck.redis
+
+    with session_scope() as db:
+        for domain in db.query(Domain).filter(Domain.blacklisted == False).yield_per(500):
+            time_delta = datetime.datetime.utcnow() - domain.last_crawl
+            time_hours = (time_delta.total_seconds() / 60) / 24
+
+            # Dirty exponential that guarantees that the function runs by the time last crawl reaches 4 days, 20 hours.
+            probablity = (10 ** (1/58)) ** time_hours
+            if probablity > random.randint(0, 100):
+                if port == 80:
+                    redis.sadd("queue:singleurls", f"http://{domain.host}.onion")
+                else:
+                    redis.sadd("queue:singleurls", f"http://{domain.host}.onion:{domain.port}")

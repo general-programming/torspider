@@ -5,6 +5,7 @@ from datetime import datetime
 
 from scrapy.exceptions import DropItem
 
+from spidercommon.constants import BAD_STATUS_CODES
 from spidercommon.model import Domain, Page, db_session
 from spidercommon.redis import create_redis
 from spidercommon.urls import ParsedURL
@@ -23,6 +24,7 @@ class DatabasePipeline(object):
 
     @db_session
     def process_item(self, item, spider, db=None):
+        # Sanity checks
         if not item:
             raise DropItem("Somehow got a blank item dict.")
 
@@ -35,6 +37,7 @@ class DatabasePipeline(object):
         # Get or create domain and update info.
         domain = Domain.find_stub_by_url(item["url"], db)
         domain.last_crawl = now
+        domain.alive = item["status_code"] not in BAD_STATUS_CODES
         if item["frontpage"]:
             if not (domain.title != '' and item["title"] == ''):
                 domain.title = item["title"]

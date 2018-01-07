@@ -53,4 +53,8 @@ CELERYBEAT_SCHEDULE = {
         "task": "spidercommon.tasks.onions.wipe_blacklisted",
         "schedule": datetime.timedelta(days=1, hours=6),
     },
+    "alive_check": {
+        "task": "spidercommon.tasks.onions.queue_alivecheck",
+        "schedule": datetime.timedelta(days=1),
+    },
 }

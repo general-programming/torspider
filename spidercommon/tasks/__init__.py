@@ -1,11 +1,11 @@
 import os
 
 import raven
-from celery import Celery, Task
-from classtools import reify
 from raven.contrib.celery import register_logger_signal, register_signal
 from redis import StrictRedis
 
+from celery import Celery, Task
+from classtools import reify
 from spidercommon.redis import redis_pool
 
 celery = Celery("spidercommon", include=[
