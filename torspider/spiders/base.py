@@ -203,7 +203,10 @@ class SpiderBase(RedisSpider):
                 else:
                     page_metadata["other_links"].add(fullurl)
 
-            self.log("link_to_list %s" % page_metadata["links_to"])
+            if len(page_metadata["links_to"]) <= 5:
+                self.logger.debug("link_to_list len %s %s" % (len(page_metadata["links_to"]), page_metadata["links_to"]))
+            else:
+                self.logger.debug("link_to_list len %s truncated" % (len(page_metadata["links_to"]), page_metadata["links_to"]))
 
             db.commit()
 
