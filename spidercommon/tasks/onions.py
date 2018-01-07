@@ -68,6 +68,6 @@ def queue_alivecheck():
             probablity = (10 ** (1/58)) ** time_hours
             if probablity > random.randint(0, 100):
                 if domain.port == 80:
-                    queue_url(redis, domain.priority, "singleurls", f"http://{domain.host}.onion")
+                    queue_url(redis, domain.priority, "singleurls", f"http://{domain.host}")
                 else:
-                    queue_url(redis, domain.priority, "singleurls", f"http://{domain.host}.onion:{domain.port}")
+                    queue_url(redis, domain.priority, "singleurls", f"http://{domain.host}:{domain.port}")
