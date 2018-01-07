@@ -10,7 +10,6 @@ scrapy-redis
 brotli
 praw
 raven
-scrapy-sentry
 txtorcon
 requests[socks,security]
 celery==4.1.0

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+from raven import Client
+from twisted.python import log
 
 # Scrapy settings for torspider project
 #
@@ -76,10 +78,19 @@ DUPEFILTER_CLASS = "torspider.middlewares.RedisCustomDupeFilter"
 REDIS_HOST = os.environ.get('REDIS_PORT_6379_TCP_ADDR', os.environ.get('REDIS_HOST', '127.0.0.1'))
 REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
 
-# SENTRY
+# Sentry https://github.com/llonchj/scrapy-sentry/issues/6
 SENTRY_DSN = os.environ.get("SENTRY_DSN", None)
 if SENTRY_DSN:
-    EXTENSIONS["scrapy_sentry.extensions.Errors"] = 10
+    client = Client(dsn=SENTRY_DSN)
+    def log_sentry(dictionary):
+        if dictionary.get('isError') and 'failure' in dictionary:
+            try:
+                # Raise the failure
+                dictionary['failure'].raiseException()
+            except:
+                # so we can capture it here.
+                client.captureException()
+    log.addObserver(log_sentry)
 
 # Tor socks
 DOWNLOAD_HANDLERS = {
