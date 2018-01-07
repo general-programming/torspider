@@ -55,6 +55,6 @@ CELERYBEAT_SCHEDULE = {
     },
     "alive_check": {
         "task": "spidercommon.tasks.onions.queue_alivecheck",
-        "schedule": datetime.timedelta(days=1),
+        "schedule": datetime.timedelta(hours=3),
     },
 }
