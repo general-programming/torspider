@@ -7,11 +7,13 @@ import scrapy
 from scrapy.exceptions import CloseSpider
 from scrapy_redis.spiders import RedisSpider
 from scrapy_redis.utils import bytes_to_str
+from twisted.internet.error import TimeoutError as TwistedTimeoutError
 
 from spidercommon.constants import GOOD_STATUS_CODES
 from spidercommon.model import Domain, Page
 from spidercommon.urls import ParsedURL
 from spidercommon.util.distribution import queue_url
+from spidercommon.util.hashing import md5
 
 
 class SpiderBase(RedisSpider):
@@ -208,3 +210,10 @@ class SpiderBase(RedisSpider):
                 self.logger.debug("link_to_list len %s truncated" % (len(page_metadata["links_to"])))
 
         return page_metadata
+
+    def process_exception(self, response, exception, spider):
+        parsed = ParsedURL(response.url)
+
+        if isinstance(exception, TwistedTimeoutError):
+            self.server.incr("timeouts:" + md5(parsed.host), 1)
+            self.server.expire("timeouts:" + md5(parsed.host), 60 * 60 * 24)

@@ -236,6 +236,13 @@ class Domain(Base):
         if not self.alive:
             priority -= 1
 
+        # -2 points each for each failed crawl.
+        try:
+            failed_crawls = int(redis.get("timeouts:" + self.host))
+        except (TypeError, ValueError):
+            failed_crawls = 0
+        priority -= 2 * failed_crawls
+
         # TODO: Average response and page count metrics should be considered here.
 
         return priority
