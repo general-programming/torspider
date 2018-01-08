@@ -1,5 +1,7 @@
 # coding=utf-8
+import json
 import re
+from datetime import date, datetime
 
 from spidercommon.regexes import (compress_ws_regex, script_tag_regex,
                                   style_tag_regex)
@@ -20,3 +22,13 @@ def strip_html(text: str):
     cleaned = re.sub(compress_ws_regex, "\n", cleaned)
 
     return cleaned
+
+
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        """JSON serializer for objects not serializable by default json code"""
+
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+
+        return json.JSONEncoder.default(self, obj)

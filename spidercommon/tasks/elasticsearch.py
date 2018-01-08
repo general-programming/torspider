@@ -7,6 +7,7 @@ from spidercommon.model import Page, session_scope
 from spidercommon.model.elasticsearch import (PageDocument, get_client,
                                               get_index)
 from spidercommon.tasks import WorkerTask, celery
+from spidercommon.util.text import CustomJSONEncoder
 
 
 @celery.task(base=WorkerTask)
@@ -25,7 +26,7 @@ def populate_elasticsearch():
             # Convert the page to a bulk insert object and add it to the queue.
             elastic_page = PageDocument.from_obj(page)
             state["bulks"].append(elastic_page.to_dict(include_meta=True))
-            state["approx_bulk_size"] += len(json.dumps(state["bulks"][-1]))
+            state["approx_bulk_size"] += len(json.dumps(state["bulks"][-1], cls=CustomJSONEncoder))
 
             # Push off when the bulks is about 10 MB
             if state["approx_bulk_size"] > (1024 * 10):
