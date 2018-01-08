@@ -2,11 +2,11 @@
 import os
 from datetime import datetime
 
-from elasticsearch_dsl import (Date, DocType, Integer, Keyword, Text,
-                               connections)
+from elasticsearch_dsl import (Boolean, Date, DocType, Index, Integer, Text,
+                               analyzer, connections)
 
-from spidercommon.util.text import strip_html
 from spidercommon.util.hashing import md5
+from spidercommon.util.text import strip_html
 
 if "ELASTICSEARCH_URL" in os.environ:
     connections.create_connection(hosts=[os.environ["ELASTICSEARCH_URL"]])
