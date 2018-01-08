@@ -13,6 +13,7 @@ celery = Celery("spidercommon", include=[
     "spidercommon.tasks.pages",
     "spidercommon.tasks.reddit",
     "spidercommon.tasks.onions",
+    "spidercommon.tasks.elasticsearch",
 ])
 
 # Sentry exception logging if there is a sentry object.

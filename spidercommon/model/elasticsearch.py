@@ -2,6 +2,7 @@
 import os
 from datetime import datetime
 
+from elasticsearch import Elasticsearch
 from elasticsearch_dsl import (Boolean, Date, DocType, Index, Integer, Text,
                                analyzer, connections)
 
@@ -60,7 +61,7 @@ class PageDocument(DocType):
         )
 
 
-def get_index(url: str, create=False):
+def get_index(create: bool=False):
     if "ELASTICSEARCH_URL" not in os.environ:
         raise Exception("ELASTICSEARCH_URL is not defined.")
 
@@ -70,3 +71,10 @@ def get_index(url: str, create=False):
         index.create()
 
     return index
+
+
+def get_client():
+    if "ELASTICSEARCH_URL" not in os.environ:
+        raise Exception("ELASTICSEARCH_URL is not defined.")
+
+    return Elasticsearch([os.environ["ELASTICSEARCH_URL"]], timeout=30)
