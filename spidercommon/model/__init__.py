@@ -31,6 +31,7 @@ engine = create_engine(
     os.environ["POSTGRES_URL"],
     convert_unicode=True,
     poolclass=NullPool,
+    pool_pre_ping=True,
 )
 
 redis = create_redis()
