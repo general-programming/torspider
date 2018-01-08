@@ -1,42 +1,42 @@
 # coding=utf-8
-import datetime
 import os
 
+from celery.schedules import crontab
 from kombu import Exchange, Queue
 
 # Debug
 if "DEBUG" in os.environ:
-    CELERY_REDIRECT_STDOUTS_LEVEL = "DEBUG"
+    worker_redirect_stdouts_level = "DEBUG"
 
 # Broker and Result backends
-BROKER_URL = os.environ.get("CELERY_BROKER", "redis://localhost/1")
-CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT", "redis://localhost/1")
+broker_url = os.environ.get("CELERY_BROKER", "redis://localhost/1")
+result_backend = os.environ.get("CELERY_RESULT", "redis://localhost/1")
 
-BROKER_TRANSPORT_OPTIONS = {
+broker_transport_options = {
     "fanout_prefix": True,
     "fanout_patterns": True
 }
 
 # Time
-CELERY_TIMEZONE = "UTC"
-CELERY_ENABLE_UTC = True
-CELERY_TASK_RESULT_EXPIRES = 60 * 10  # 10 minutes
+timezone = "UTC"
+enable_utc = True
+result_expires = 60 * 10  # 10 minutes
 
 # Logging
-CELERY_IGNORE_RESULT = True
-CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
+task_ignore_result = True
+task_store_errors_even_if_ignored = True
 
 # Serialization
-CELERY_TASK_SERIALIZER = "msgpack"
-CELERY_RESULT_SERIALIZER = "msgpack"
-CELERY_ACCEPT_CONTENT = ["json", "msgpack", "yaml"]
+task_serializer = "msgpack"
+result_serializer = "msgpack"
+accept_content = ["json", "msgpack", "yaml"]
 
 # Performance
-CELERY_DISABLE_RATE_LIMITS = True
+worker_disable_rate_limits = True
 
 # Queue config
-CELERY_DEFAULT_QUEUE = "default"
-CELERY_QUEUES = (
+task_default_queue = "default"
+task_queues = (
     # Default queue
     Queue("default", Exchange("default"), routing_key="default"),
 
@@ -45,17 +45,17 @@ CELERY_QUEUES = (
 )
 
 # Beats config
-CELERYBEAT_SCHEDULE = {
+beat_schedule = {
     "update_blacklist": {
         "task": "spidercommon.tasks.onions.update_blacklist",
-        "schedule": datetime.timedelta(days=1),
+        "schedule": crontab(minute=0, hour=0),
     },
     "wipe_blacklisted": {
         "task": "spidercommon.tasks.onions.wipe_blacklisted",
-        "schedule": datetime.timedelta(days=1, hours=6),
+        "schedule": crontab(minute=0, hour="*/6"),
     },
     "alive_check": {
         "task": "spidercommon.tasks.onions.queue_alivecheck",
-        "schedule": datetime.timedelta(hours=3),
+        "schedule": crontab(minute=0, hour="*/3"),
     },
 }
