@@ -58,12 +58,14 @@ class PageDocument(DocType):
         )
 
 
-def get_index(url: str):
+def get_index(url: str, create=False):
     if "ELASTICSEARCH_URL" not in os.environ:
         raise Exception("ELASTICSEARCH_URL is not defined.")
 
     index_describer = md5(url)[0:2]
     index = Index('torspider-%s' % (index_describer))
-    hidden_services.doc_type(PageDocument)
+    index.doc_type(PageDocument)
+    if create:
+        index.create()
 
     return index

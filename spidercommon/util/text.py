@@ -1,4 +1,5 @@
 # coding=utf-8
+import re
 from spidercommon.regexes import (compress_ws_regex, script_tag_regex,
                                   style_tag_regex)
 
