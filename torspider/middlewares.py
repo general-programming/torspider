@@ -18,6 +18,7 @@ from spidercommon.model import Domain
 from spidercommon.redis import create_redis
 from spidercommon.urls import ParsedURL
 
+
 MAX_PAGES_SCRIPT = """
 local domain = ARGV[1]
 local max_pages = tonumber(ARGV[2])

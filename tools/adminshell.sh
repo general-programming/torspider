@@ -5,6 +5,7 @@ if [ -d "/app/torspider" ]; then
     # Container
     apk update
     socks_proxy="" apk add postgresql-client redis zsh busybox-extras nano less
+    socks_proxy="" pip install pyreadline ipython
     echo "alias redis-cli='redis-cli -h $REDIS_HOST -p $REDIS_PORT'" >> ~/.zshrc
     zsh -i
 else

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import code
 import os
 import re
@@ -12,6 +14,13 @@ from spidercommon.redis import create_redis
 from spidercommon.tasks.onions import queue_alivecheck
 from spidercommon.tasks.pages import check_page, check_ports_for_all_domains, fetch_page_for_all_domains, find_onions
 from spidercommon.tasks.reddit import fetch_subreddit
+
+try:
+    import IPython
+except ImportError:
+    IPython = None
+
+
 
 # Connections
 
@@ -43,4 +52,7 @@ def grab_onions(url: str):
 
 
 if __name__ == "__main__":
-    code.interact(local=locals())
+    if IPython:
+        IPython.embed()
+    else:
+        code.interact(local=locals())

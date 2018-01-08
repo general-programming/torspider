@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+
 from raven import Client
 from twisted.python import log
 
