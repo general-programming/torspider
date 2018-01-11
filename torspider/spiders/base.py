@@ -39,8 +39,8 @@ class SpiderBase(RedisSpider):
     def setup_redis(self, *args, **kwargs):
         super().setup_redis(*args, **kwargs)
 
-        if "SOCKS_PROXY" not in os.environ:
-            raise CloseSpider("Refusing to run spider without a SOCKS proxy setup.")
+        if "SOCKS_PROXY" not in os.environ and "HTTP_PROXY" not in os.environ:
+            raise CloseSpider("Refusing to run spider without a proxy setup.")
 
         if not self.server.exists("torspider:firstrun"):
             self.server.set("torspider:firstrun", 1)

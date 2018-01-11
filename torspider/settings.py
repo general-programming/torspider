@@ -98,7 +98,9 @@ if SENTRY_DSN:
     log.addObserver(log_sentry)
 
 # Tor socks
-DOWNLOAD_HANDLERS = {
-    'http': 'torspider.transports.TorDownloadHandler',
-    'https': 'torspider.transports.TorDownloadHandler'
-}
+if "SOCKS_PROXY" in os.environ:
+    print("Using Tor SOCKS proxy handlers for downloaders.")
+    DOWNLOAD_HANDLERS = {
+        'http': 'torspider.transports.TorDownloadHandler',
+        'https': 'torspider.transports.TorDownloadHandler'
+    }

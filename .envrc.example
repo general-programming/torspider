@@ -1,6 +1,8 @@
-export POSTGRES_URL="postgresql://usesrname:password@localhost/torspider"
-export SOCKS_PROXY=socks5://localhost:9050
-export SENTRY_DSN=https://token@sentry.io/123456
+export POSTGRES_URL="postgresql://username:password@localhost/torspider"
+export ELASTICSEARCH_URL="http://localhost:9200"
+export HTTP_PROXY="http://tor:8118"
+export HTTPS_PROXY="http://tor:8118"
+export SENTRY_DSN="https://token@sentry.io/123456"
 
 export REDDIT_CLIENT_ID=redditclientid
 exprot REDDIT_CLIENT_SECRET=redditlientsecret
