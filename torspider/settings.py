@@ -98,6 +98,9 @@ if SENTRY_DSN:
     log.addObserver(log_sentry)
 
 # Tor socks
+if "SOCKS_PROXY" in os.environ and "HTTP_PROXY" in os.environ:
+    raise Exception("Both SOCKS_PROXY and HTTP_PROXY envvars are set. Whoops.")
+
 if "SOCKS_PROXY" in os.environ:
     print("Using Tor SOCKS proxy handlers for downloaders.")
     DOWNLOAD_HANDLERS = {
