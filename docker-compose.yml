@@ -50,8 +50,6 @@ services:
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      HTTP_PROXY: http://tor:8118
-      HTTPS_PROXY: http://tor:8118
       CELERY_BROKER: redis://redis:6379/1
       CELERY_RESULT: redis://redis:6379/1
     env_file: .env
@@ -65,8 +63,6 @@ services:
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      HTTP_PROXY: http://tor:8118
-      HTTPS_PROXY: http://tor:8118
       CELERY_BROKER: redis://redis:6379/1
       CELERY_RESULT: redis://redis:6379/1
     env_file: .env
