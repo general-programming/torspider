@@ -1,8 +1,8 @@
 import os
 from typing import List, Union
 
-from spidercommon.util.hashing import sha256
 from spidercommon.constants import DEFAULT_STORAGE_PATH
+from spidercommon.util.hashing import sha256
 
 
 class HashedFile:

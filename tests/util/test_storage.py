@@ -1,5 +1,7 @@
-from spidercommon.util.storage import HashedFile
 import os
+
+from spidercommon.util.storage import HashedFile
+
 
 def test_write_str(tmpdir):
     test_data = "Eggs are cool."
