@@ -99,7 +99,6 @@ class Page(Base):
     post_process_version = Column(Integer, nullable=False, default=0)
 
     title = Column(Unicode, default="")
-    size = Column(Integer, default=0)
     links_to = Column(ARRAY(String), default=[])
 
     _content = Column("content", LargeBinary)
@@ -310,7 +309,6 @@ class File(Base):
 
     first_crawl = Column(DateTime(), nullable=False, default=now)
     last_crawl = Column(DateTime(), nullable=False, default=now)
-    status_code = Column(Integer, nullable=False, default=1234)
 
     size = Column(Integer, default=0)
     file_hash = Column(String)
