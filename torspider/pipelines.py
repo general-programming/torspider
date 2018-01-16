@@ -45,8 +45,8 @@ class DatabasePipeline(object):
                 domain.title = item["title"]
         db.commit()
 
-        # Drop to the file processor pipeline if this is not a text response.
-        if not item["text"]:
+        # Drop to the file processor pipeline if this is not a html response.
+        if not item["html"]:
             return item
 
         # Get or create page.
@@ -94,8 +94,8 @@ class FilePipeline(object):
 
     @db_session
     def process_item(self, item, spider, db=None):
-        # Pass off to the next pipeline if this is a text response..
-        if item["text"]:
+        # Pass off to the next pipeline if this is a html response..
+        if item["html"]:
             return item
 
         # Get domain and parsed URL info.
