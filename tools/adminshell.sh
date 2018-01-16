@@ -15,5 +15,5 @@ if [ -d "/app/torspider" ]; then
     zsh -i
 else
     # Boot up an admin container!
-    docker-compose run --rm -u 0 spider tools/adminshell.sh
+    docker-compose -f ../docker-compose.production.yml run --rm -u 0 spider tools/adminshell.sh
 fi
