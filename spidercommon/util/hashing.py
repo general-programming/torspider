@@ -2,22 +2,12 @@
 import hashlib
 from typing import Union
 
+from spidercommon.util.compat import to_bytes
+
 
 def md5(content: Union[bytes, str]):
-    # XXX: make tobytes function util
-    try:
-        content = content.encode("utf8")
-    except (UnicodeEncodeError, AttributeError):
-        pass
-
-    return hashlib.md5(content).hexdigest()
+    return hashlib.md5(to_bytes(content)).hexdigest()
 
 
 def sha256(content: Union[bytes, str]):
-    # XXX: make tobytes function util
-    try:
-        content = content.encode("utf8")
-    except (UnicodeEncodeError, AttributeError):
-        pass
-
-    return hashlib.sha256(content).hexdigest()
+    return hashlib.sha256(to_bytes(content)).hexdigest()
