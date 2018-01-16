@@ -4,13 +4,15 @@ import time
 from datetime import datetime
 
 from scrapy.exceptions import DropItem
+from sqlalchemy.dialects.postgresql import insert
 
 from spidercommon.constants import BAD_STATUS_CODES
-from spidercommon.model import Domain, Page, db_session
+from spidercommon.model import Domain, Page, File, db_session
 from spidercommon.redis import create_redis
 from spidercommon.urls import ParsedURL
 from spidercommon.util.distribution import lock_single
-from spidercommon.util.hashing import md5
+from spidercommon.util.hashing import md5, sha256
+from spidercommon.util.storage import HashedFile
 
 # Define your item pipelines here
 #
@@ -42,6 +44,10 @@ class DatabasePipeline(object):
             if not (domain.title != '' and item["title"] == ''):
                 domain.title = item["title"]
         db.commit()
+
+        # Drop to the file processor pipeline if this is not a text response.
+        if not item["text"]:
+            return item
 
         # Get or create page.
         page = db.query(Page).filter(Page.url == item["url"]).scalar()
@@ -79,4 +85,53 @@ class DatabasePipeline(object):
         page.links_to = list(item["links_to"])
 
         db.commit()
+        return item
+
+
+class FilePipeline(object):
+    def __init__(self):
+        self.redis = create_redis()
+
+    @db_session
+    def process_item(self, item, spider, db=None):
+        # Pass off to the next pipeline if this is a text response..
+        if item["text"]:
+            return item
+
+        # Get domain and parsed URL info.
+        domain = Domain.find_stub_by_url(item["url"], db)
+        parsed = ParsedURL(item["url"])
+        now = datetime.now()
+
+        # Get or create file.
+        file_row = db.query(File).filter(File.url == item["url"]).scalar()
+
+        if not file_row:
+            statement = insert(File).values(
+                url=item["url"],
+                domain_id=domain.id,
+                status_code=item["status_code"],
+                last_crawl=now,
+                size=item["size"],
+                path=parsed.path
+            ).on_conflict_do_nothing(index_elements=["url"])
+            db.execute(statement)
+            time.sleep(1)
+            file_row = db.query(File).filter(File.url == item["url"]).scalar()
+
+        # Update file information.
+        file_store = HashedFile.from_data(item["content"], save=False)
+
+        file_row.status_code = item["status_code"]
+        file_row.last_crawl = now
+        file_row.size = item["size"]
+
+        if domain.blacklisted:
+            file_store.write(b"Blacklisted domain.")
+        elif file_store.read() != item["content"]:
+            file_store.write(item["content"])
+            file_row.file_hash = file_store.file_hash
+
+        db.commit()
+
         return item

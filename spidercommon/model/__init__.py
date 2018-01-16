@@ -300,8 +300,28 @@ class OnionBlacklist(Base):
     source = Column(String, nullable=False)
 
 
+class File(Base):
+    __tablename__ = "files"
+    id = Column(Integer, primary_key=True)
+    domain_id = Column(ForeignKey("domains.id"), nullable=False)
+
+    url = Column(Unicode, nullable=False, unique=True)
+    path = Column(Unicode)
+
+    first_crawl = Column(DateTime(), nullable=False, default=now)
+    last_crawl = Column(DateTime(), nullable=False, default=now)
+    status_code = Column(Integer, nullable=False, default=1234)
+
+    size = Column(Integer, default=0)
+    file_hash = Column(String)
+
+    domain = relationship("Domain")
+
+
 # Indexes
 Index("index_domain_host", Domain.host)
 Index("index_page_url", Page.url)
 Index("index_page_domain_id", Page.domain_id)
 Index("index_blacklist_hash", OnionBlacklist.hexhash)
+Index("index_file_url", File.url)
+Index("index_file_domain_id", File.domain_id)

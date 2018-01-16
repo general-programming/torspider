@@ -130,10 +130,20 @@ class SpiderBase(RedisSpider):
             # Parsed from page
             "title": "",
             "frontpage": False,
-            "content": response.text,
+            "content": None,
             "links_to": set(),
-            "other_links": set()
+            "other_links": set(),
+
+            # Parsing meta
+            "text": True,
         }
+
+        # Attempt setting the content
+        try:
+            page_metadata["content"] = response.text
+        except AttributeError:
+            page_metadata["content"] = response.body
+            page_metadata["text"] = False
 
         # Grab the title of the page.
         try:
@@ -141,8 +151,7 @@ class SpiderBase(RedisSpider):
         except AttributeError:
             pass
         except scrapy.exceptions.NotSupported:
-            self.log(f"Skipping non-text file {response.url}")
-            return None
+            self.logger.debug(f"Fetched non-text file {response.url}")
 
         # Get tor URL "hostname"
         parsed = ParsedURL(response.url)
@@ -169,7 +178,7 @@ class SpiderBase(RedisSpider):
             is_text = True
 
         # Update links_to
-        if parsed.host not in self.spider_exclude:
+        if parsed.host not in self.spider_exclude and hasattr(response, "xpath"):
             for url in response.xpath('//a/@href').extract():
                 # Split thhe URL for any onion to clean out web to onion services if they exist.
                 fullurl_parts = response.urljoin(url).split(".onion", 1)

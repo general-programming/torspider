@@ -17,7 +17,7 @@ class HashedFile:
         self.file_hash = file_hash
 
     @classmethod
-    def from_data(cls, data: Union[bytes, str], storage_path: str=DEFAULT_STORAGE_PATH):
+    def from_data(cls, data: Union[bytes, str], storage_path: str=DEFAULT_STORAGE_PATH, save: bool=True):
         """
         Creates the hash for a file and saves it to its respective location.
 
@@ -28,7 +28,8 @@ class HashedFile:
         file_hash = sha256(data)
 
         new_obj = cls(file_hash, storage_path)
-        new_obj.write(data)
+        if save:
+            new_obj.write(data)
 
         return new_obj
 

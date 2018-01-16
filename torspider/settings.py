@@ -60,6 +60,7 @@ EXTENSIONS = {}
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     'torspider.pipelines.DatabasePipeline': 100,
+    'torspider.pipelines.FilePipeline': 200,
 }
 
 # Our special sauce
