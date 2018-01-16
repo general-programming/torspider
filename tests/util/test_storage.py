@@ -14,3 +14,12 @@ def test_write_bytes(tmpdir):
     test_file = HashedFile.from_data(test_data, tmpdir)
 
     assert test_file.read() == test_data
+
+
+def test_same_path_same_data(tmpdir):
+    test_data = os.urandom(420)
+    test_file1 = HashedFile.from_data(test_data, tmpdir)
+    test_file2 = HashedFile.from_data(test_data, tmpdir)
+
+    assert test_file1.full_path == test_file2.full_path
+    assert test_file1.read() == test_file2.read()
