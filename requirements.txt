@@ -18,3 +18,4 @@ classtools==0.1
 msgpack-python>=0.3.0
 elasticsearch==6.1.1
 elasticsearch-dsl==6.0.1
+python-magic==0.4.15

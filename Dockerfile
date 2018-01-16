@@ -1,4 +1,4 @@
-FROM python:3.6.3-alpine
+FROM python:3.6.4-alpine
 
 # Edge repos
 RUN echo http://dl-cdn.alpinelinux.org/alpine/edge/main > /etc/apk/repositories && \
@@ -13,7 +13,7 @@ WORKDIR /app
 
 # Requirements
 COPY requirements.txt /app/requirements.txt
-RUN apk add --no-cache build-base libffi libffi-dev ca-certificates pkgconf postgresql-dev ca-certificates libxml2-dev libxslt-dev tini && \
+RUN apk add --no-cache build-base libffi libffi-dev ca-certificates pkgconf postgresql-dev ca-certificates libxml2-dev libxslt-dev tini libmagic && \
 	CPPFLAGS=-I/usr/include/libxml2 pip3 install -r /app/requirements.txt
 
 # Add code

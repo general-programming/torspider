@@ -3,6 +3,7 @@ import json
 import os
 import re
 from urllib.parse import urljoin
+import magic
 
 import scrapy
 from scrapy.exceptions import CloseSpider
@@ -135,7 +136,7 @@ class SpiderBase(RedisSpider):
             "other_links": set(),
 
             # Parsing meta
-            "html": True,
+            "html": "HTML" in magic.from_buffer(response.body),
         }
 
         # Attempt setting the content
