@@ -4,7 +4,7 @@ services:
     build:
       context: containers/redis
     volumes:
-      - redis:/data
+      - /mnt/nfs/torspider/redis:/data
     restart: always
     command: "redis-server --appendonly yes --loadmodule /usr/local/lib/rebloom.so"
     expose:
