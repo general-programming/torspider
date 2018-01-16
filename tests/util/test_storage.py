@@ -25,3 +25,17 @@ def test_same_path_same_data(tmpdir):
 
     assert test_file1.full_path == test_file2.full_path
     assert test_file1.read() == test_file2.read()
+
+
+def test_non_existent_hash_then_make_it_real(tmpdir):
+    # 34707c3f40dfa20c3902b807b627d420d6d474d9d98066ba637953d1cfd6b914 == egg
+
+    test_file_1 = HashedFile.from_hash("34707c3f40dfa20c3902b807b627d420d6d474d9d98066ba637953d1cfd6b914", tmpdir)
+    test_content_1 = test_file_1.read()
+    assert test_content_1 != "egg"
+
+    test_file_2 = HashedFile.from_data("egg", tmpdir)
+    assert test_file_1.file_hash == test_file_2.file_hash
+    assert test_file_1.full_path == test_file_2.full_path
+    assert test_content_1 != test_file_2.read()
+
