@@ -25,21 +25,23 @@ services:
       - 2090
 
   spider:
-      build:
-          context: .
-      restart: always
-      environment:
-        REDIS_HOST: redis
-        REDIS_PORT: 6379
-        HTTP_PROXY: http://tor:8118
-        HTTPS_PROXY: http://tor:8118
-        CELERY_BROKER: redis://redis:6379/1
-        CELERY_RESULT: redis://redis:6379/1
-      env_file: .env
-      command: "python torspider"
-      depends_on:
-        - redis
-        - tor
+    build:
+        context: .
+    restart: always
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      HTTP_PROXY: http://tor:8118
+      HTTPS_PROXY: http://tor:8118
+      CELERY_BROKER: redis://redis:6379/1
+      CELERY_RESULT: redis://redis:6379/1
+    volumes:
+      - /mnt/nfs/torspider/data:/data
+    env_file: .env
+    command: "python torspider"
+    depends_on:
+      - redis
+      - tor
 
   celery:
     build: .
@@ -52,6 +54,8 @@ services:
       REDIS_PORT: 6379
       CELERY_BROKER: redis://redis:6379/1
       CELERY_RESULT: redis://redis:6379/1
+    volumes:
+      - /mnt/nfs/torspider/data:/data
     env_file: .env
 
   beat:
@@ -66,7 +70,3 @@ services:
       CELERY_BROKER: redis://redis:6379/1
       CELERY_RESULT: redis://redis:6379/1
     env_file: .env
-
-volumes:
-  redis:
-    driver: local
