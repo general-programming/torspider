@@ -329,7 +329,7 @@ class File(Base):
         file_obj = HashedFile.from_data(content)
 
         # Update the meta information for this file.
-        if self.file_hash != file_obj.file_hash:
+        if (self.file_hash != file_obj.file_hash) and self.file_hash:
             previous_hashes = set(self.previous_hashes)
             previous_hashes.add(self.file_hash)
             self.previous_hashes = list(previous_hashes)
