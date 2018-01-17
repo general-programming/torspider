@@ -13,15 +13,14 @@ for page in db.query(Page).yield_per(100):
     file_row = db_adder.query(File).filter(File.url == page.url).scalar()
 
     if not file_row:
-        statement = insert(File).values(
+        file_row = File(
             url=page.url,
             domain_id=page.domain_id,
             last_crawl=page.last_crawl,
             size=len(page_content),
             path=page.path
-        ).on_conflict_do_nothing(index_elements=["url"])
-        db_adder.execute(statement)
-        file_row = db_adder.query(File).filter(File.url == page.url).scalar()
+        )
+        db_adder.add(file_row)
 
     file_row.content = page_content
 
