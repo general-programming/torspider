@@ -16,6 +16,7 @@ for page in db.query(Page).yield_per(100):
         file_row = File(
             url=page.url,
             domain_id=page.domain_id,
+            first_crawl=page.first_crawl,
             last_crawl=page.last_crawl,
             size=len(page_content),
             path=page.path
