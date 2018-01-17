@@ -20,7 +20,6 @@ for page in db.query(Page).yield_per(1000):
             path=page.path
         ).on_conflict_do_nothing(index_elements=["url"])
         db.execute(statement)
-        time.sleep(1)
         file_row = db.query(File).filter(File.url == page.url).scalar()
 
     file_row.content = page_content
@@ -29,5 +28,6 @@ for page in db.query(Page).yield_per(1000):
     if meta["i"] % 100 == 0:
         meta["i"] = 0
         db.commit()
+        print(f"{i} completed.")
 
 db.commit()
