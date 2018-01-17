@@ -26,8 +26,7 @@ for page in db.query(Page).yield_per(1000):
 
     meta["i"] += 1
     if meta["i"] % 100 == 0:
-        meta["i"] = 0
         db.commit()
-        print(f"{i} completed.")
+        print(f"{meta['i']} completed.")
 
 db.commit()
