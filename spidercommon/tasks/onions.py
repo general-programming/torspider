@@ -55,7 +55,7 @@ def wipe_blacklisted():
             for file_obj in db.query(File).filter(and_(File.domain_id == domain.id, File.file_hash != sha256(BLACKLISTED_BLANK))).yield_per(250):
                 file_store = HashedFile.from_hash(file_obj.file_hash)
                 file_store.write(BLACKLISTED_BLANK)
-                file_obj.file_hash = sha256(BLACKLISTED_BLANK)
+                file_obj.content = BLACKLISTED_BLANK
             db.commit()
 
 

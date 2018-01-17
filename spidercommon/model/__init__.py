@@ -313,6 +313,7 @@ class File(Base):
 
     size = Column(Integer, default=0)
     file_hash = Column(String)
+    previous_hashes = Column(ARRAY(String), default=[])
 
     domain = relationship("Domain")
 
@@ -324,7 +325,14 @@ class File(Base):
 
     @content.setter
     def content(self, content: Union[str, bytes]):
+        # Assuming autosaving happens when it is initalized like thsi.
         file_obj = HashedFile.from_data(content)
+
+        # Update the meta information for this file.
+        if self.file_hash != file_obj.file_hash:
+            previous_hashes = set(self.previous_hashes)
+            previous_hashes.add(self.file_hash)
+            self.previous_hashes = list(previous_hashes)
         self.file_hash = file_obj.file_hash
         self.size = len(content)
 
