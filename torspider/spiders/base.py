@@ -134,9 +134,6 @@ class SpiderBase(RedisSpider):
             "content": None,
             "links_to": set(),
             "other_links": set(),
-
-            # Parsing meta
-            "html": "HTML" in magic.from_buffer(response.body),
         }
 
         # Attempt setting the content
@@ -144,7 +141,6 @@ class SpiderBase(RedisSpider):
             page_metadata["content"] = response.text
         except AttributeError:
             page_metadata["content"] = response.body
-            page_metadata["html"] = False
 
         # Grab the title of the page.
         try:
@@ -229,7 +225,7 @@ class SpiderBase(RedisSpider):
                         )
                     )
             except (AttributeError, scrapy.exceptions.NotSupported):
-                page_metadata["html"] = False
+                pass
 
         return page_metadata
 
