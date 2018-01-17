@@ -24,6 +24,7 @@ from spidercommon.regexes import onion_regex
 from spidercommon.urls import ParsedURL
 from spidercommon.util.distribution import lock_single
 from spidercommon.util.hashing import md5
+from spidercommon.util.storage import HashedFile
 
 debug = os.environ.get('DEBUG', False)
 
@@ -314,6 +315,18 @@ class File(Base):
     file_hash = Column(String)
 
     domain = relationship("Domain")
+
+    @property
+    def content(self) -> Union[str, bytes]:
+        file_obj = HashedFile.from_hash(self.file_hash)
+
+        return file_obj.read()
+
+    @content.setter
+    def content(self, content: Union[str, bytes]):
+        file_obj = HashedFile.from_data(content)
+        self.file_hash = file_obj.file_hash
+        self.size = len(content)
 
 
 # Indexes

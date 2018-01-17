@@ -108,14 +108,13 @@ class FilePipeline(object):
         file_store = HashedFile.from_data(item["content"], save=False)
 
         file_row.last_crawl = now
-        file_row.size = item["size"]
 
         if domain.blacklisted:
+            # Override the old file before replacing the content.
             file_store.write(BLACKLISTED_BLANK)
-            file_row.file_hash = sha256(BLACKLISTED_BLANK)
+            file_row.content = BLACKLISTED_BLANK
         elif file_store.read() != item["content"]:
-            file_store.write(item["content"])
-            file_row.file_hash = file_store.file_hash
+            file_row.content = item["content"]
 
         db.commit()
 
