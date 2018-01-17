@@ -5,21 +5,22 @@ from urllib.parse import urljoin
 
 import requests
 from redis import StrictRedis
+from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import insert
 
-from spidercommon.model import Domain, OnionBlacklist, Page, session_scope
+from spidercommon.constants import BLACKLISTED_BLANK
+from spidercommon.model import (Domain, File, OnionBlacklist, Page,
+                                session_scope)
 from spidercommon.regexes import onion_regex
 from spidercommon.tasks import WorkerTask, celery
 from spidercommon.util.compat import random
 from spidercommon.util.distribution import queue_url
-from spidercommon.util.hashing import md5
+from spidercommon.util.hashing import md5, sha256
+from spidercommon.util.storage import HashedFile
 
 
 def fetch_ahmia_blacklist():
     return [x.strip() for x in requests.get("https://ahmia.fi/blacklist/banned/").text.split("<br>\n\n") if x]
-
-
-BLACKLISTED_BLANK = "<h1>Nope.</h1>"
 
 
 @celery.task(base=WorkerTask)
@@ -51,9 +52,10 @@ def update_blacklist():
 def wipe_blacklisted():
     with session_scope() as db:
         for domain in db.query(Domain).filter(Domain.blacklisted == True).yield_per(250):
-            for page in db.query(Page).filter(Page.domain_id == domain.id).yield_per(250):
-                if page.content != BLACKLISTED_BLANK:
-                    page.content = BLACKLISTED_BLANK
+            for file_obj in db.query(File).filter(and_(File.domain_id == domain.id, File.file_hash != sha256(BLACKLISTED_BLANK))).yield_per(250):
+                file_store = HashedFile.from_hash(file_obj.file_hash)
+                file_store.write(BLACKLISTED_BLANK)
+                file_obj.file_hash = sha256(BLACKLISTED_BLANK)
             db.commit()
 
 

@@ -43,6 +43,7 @@ class PageDocument(DocType):
 
     @classmethod
     def from_obj(cls, obj):
+        # XXX: Make this work with the new File model later.
         return cls(
             meta={
                 'id': md5(obj.url),

@@ -38,4 +38,3 @@ def test_non_existent_hash_then_make_it_real(tmpdir):
     assert test_file_1.file_hash == test_file_2.file_hash
     assert test_file_1.full_path == test_file_2.full_path
     assert test_content_1 != test_file_2.read()
-

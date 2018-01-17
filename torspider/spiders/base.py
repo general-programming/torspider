@@ -3,8 +3,8 @@ import json
 import os
 import re
 from urllib.parse import urljoin
-import magic
 
+import magic
 import scrapy
 from scrapy.exceptions import CloseSpider
 from scrapy_redis.spiders import RedisSpider

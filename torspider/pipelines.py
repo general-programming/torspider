@@ -6,8 +6,8 @@ from datetime import datetime
 from scrapy.exceptions import DropItem
 from sqlalchemy.dialects.postgresql import insert
 
-from spidercommon.constants import BAD_STATUS_CODES
-from spidercommon.model import Domain, Page, File, db_session
+from spidercommon.constants import BAD_STATUS_CODES, BLACKLISTED_BLANK
+from spidercommon.model import Domain, File, Page, db_session
 from spidercommon.redis import create_redis
 from spidercommon.urls import ParsedURL
 from spidercommon.util.distribution import lock_single
@@ -111,7 +111,8 @@ class FilePipeline(object):
         file_row.size = item["size"]
 
         if domain.blacklisted:
-            file_store.write(b"Blacklisted domain.")
+            file_store.write(BLACKLISTED_BLANK)
+            file_row.file_hash = sha256(BLACKLISTED_BLANK)
         elif file_store.read() != item["content"]:
             file_store.write(item["content"])
             file_row.file_hash = file_store.file_hash
