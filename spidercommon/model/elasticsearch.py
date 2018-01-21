@@ -24,11 +24,10 @@ class PageDocument(DocType):
     domain_id = Integer()
 
     url = Text()
-    title = Text(analyzer='snowball')
     first_crawl = Date()
     last_crawl = Date()
-    is_frontpage = Boolean()
-    status_code = Integer()
+
+    file_hash = Text()
 
     content = Text()
     clean_content = Text(analyzer=html_strip, term_vector="with_positions_offsets")
@@ -43,7 +42,8 @@ class PageDocument(DocType):
 
     @classmethod
     def from_obj(cls, obj):
-        # XXX: Make this work with the new File model later.
+        content = obj.content
+
         return cls(
             meta={
                 'id': md5(obj.url),
@@ -52,13 +52,11 @@ class PageDocument(DocType):
             db_id=obj.id,
             domain_id=obj.domain_id,
             url=obj.url,
-            title=obj.title,
             first_crawl=obj.first_crawl,
             last_crawl=obj.last_crawl,
-            is_frontpage=obj.is_frontpage,
-            status_code=obj.status_code,
-            content=obj.content,
-            clean_content=strip_html(obj.content),
+            file_hash=obj.file_hash,
+            content=content,
+            clean_content=strip_html(content),
         )
 
 
