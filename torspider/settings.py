@@ -81,9 +81,16 @@ REDIS_HOST = os.environ.get('REDIS_PORT_6379_TCP_ADDR', os.environ.get('REDIS_HO
 REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
 
 # Sentry https://github.com/llonchj/scrapy-sentry/issues/6
-SENTRY_DSN = os.environ.get("SENTRY_DSN", None)
-if SENTRY_DSN:
-    client = Client(dsn=SENTRY_DSN)
+if "SENTRY_DSN" in os.environ or ("SENTRY_TOR_DSN" in os.environ and "HTTPS_PROXY" in os.environ):
+    if "HTTPS_PROXY" in os.environ:
+        dsn_url = os.environ["SENTRY_TOR_DSN"]
+    else:
+        dsn_url = os.environ["SENTRY_DSN"]
+else:
+    dsn_url = None
+
+if dsn_url:
+    client = Client(dsn=dsn_url)
 
 
     def log_sentry(dictionary):

@@ -17,9 +17,14 @@ celery = Celery("spidercommon", include=[
 ])
 
 # Sentry exception logging if there is a sentry object.
-if "SENTRY_DSN" in os.environ:
+if "SENTRY_DSN" in os.environ or ("SENTRY_TOR_DSN" in os.environ and "HTTPS_PROXY" in os.environ):
+    if "HTTPS_PROXY" in os.environ:
+        dsn_url = os.environ["SENTRY_TOR_DSN"]
+    else:
+        dsn_url = os.environ["SENTRY_DSN"]
+
     sentry = raven.Client(
-        dsn=os.environ["SENTRY_DSN"],
+        dsn=dsn_url,
         include_paths=["spidercommon"],
     )
     register_logger_signal(sentry)
