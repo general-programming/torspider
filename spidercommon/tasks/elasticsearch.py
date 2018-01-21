@@ -3,7 +3,7 @@ import json
 
 import elasticsearch
 
-from spidercommon.model import Page, session_scope
+from spidercommon.model import Page, File, session_scope
 from spidercommon.model.elasticsearch import (PageDocument, get_client,
                                               get_index)
 from spidercommon.tasks import WorkerTask, celery
@@ -22,7 +22,7 @@ def populate_elasticsearch():
     get_index()
 
     with session_scope() as sql_db:
-        for page in sql_db.query(Page).yield_per(1000):
+        for page in sql_db.query(File).yield_per(1000):
             # Convert the page to a bulk insert object and add it to the queue.
             elastic_page = PageDocument.from_obj(page)
             state["bulks"].append(elastic_page.to_dict(include_meta=True))

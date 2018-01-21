@@ -23,6 +23,7 @@ for page in db.query(Page).yield_per(100):
         )
         db_adder.add(file_row)
 
+    file_row.first_crawl = page.first_crawl
     file_row.content = page_content
 
     meta["i"] += 1
