@@ -75,8 +75,13 @@ def domain_cron():
                 logger.debug(f"{domain.host} has not been crawled for {time_hours} hours. Marked as dead.")
                 domain.is_alive = False
 
-            # Dirty exponential that guarantees that the function runs by the time last crawl reaches 4 days, 20 hours.
-            probablity = (10 ** (1 / 58)) ** time_hours
+            # Dirty exponential that guarantees that the function runs by the time last crawl reaches 4 days, 20 hours if the domain is alive.
+            # The time is bumped to about a month if the domain is dead.
+            if domain.is_alive:
+                probablity = (10 ** (1 / 58)) ** time_hours
+            else:
+                probablity = (10 ** (1 / 420)) ** time_hours
+
             if probablity > random.randint(0, 100):
                 if domain.port == 80:
                     queue_url(redis, domain.priority, "torlink", f"http://{domain.host}")
