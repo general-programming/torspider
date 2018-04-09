@@ -4,6 +4,7 @@ from typing import List, Optional
 from urllib.parse import urljoin
 
 import requests
+from celery.utils.log import get_task_logger
 from redis import StrictRedis
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import insert
@@ -17,6 +18,8 @@ from spidercommon.util.compat import random
 from spidercommon.util.distribution import queue_url
 from spidercommon.util.hashing import md5, sha256
 from spidercommon.util.storage import HashedFile
+
+logger = get_task_logger(__name__)
 
 
 def fetch_ahmia_blacklist():
@@ -43,7 +46,7 @@ def update_blacklist():
                 db.execute(statement)
 
     with session_scope() as db:
-        for domain in db.query(Domain).yield_per(500):
+        for domain in db.query(Domain).filter(Domain.blacklisted == False).yield_per(500):
             if md5(domain.host) in blacklist_md5:
                 domain.blacklisted = True
 
@@ -68,7 +71,8 @@ def domain_cron():
             time_hours = (time_delta.total_seconds() / 60) / 24
 
             # Mark the domain as dead if there has been no crawls for a week.
-            if time_hours > (24 * 7):
+            if domain.is_alive and time_hours > (24 * 7):
+                logger.debug(f"{domain.host} has not been crawled for {time_hours} hours. Marked as dead.")
                 domain.is_alive = False
 
             # Dirty exponential that guarantees that the function runs by the time last crawl reaches 4 days, 20 hours.
