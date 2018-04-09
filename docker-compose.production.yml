@@ -15,10 +15,7 @@ services:
       context: containers/tor
     restart: always
     environment:
-      privoxy: 1
       haproxy_pass: thisisnotsecureatallbutitisbetterthanplainadmin
-      test_url: http://example.com
-      test_status: 200
     expose:
       - 8118
       - 5566
@@ -31,8 +28,7 @@ services:
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      HTTP_PROXY: http://tor:8118
-      HTTPS_PROXY: http://tor:8118
+      SOCKS_PROXY: http://tor:5566
       CELERY_BROKER: redis://redis:6379/1
       CELERY_RESULT: redis://redis:6379/1
     volumes:

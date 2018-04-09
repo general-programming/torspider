@@ -18,7 +18,7 @@ class TorDownloadHandler(HTTP11DownloadHandler):
 
 class ScrapySocks5Agent(ScrapyAgent):
     def _get_agent(self, request, timeout):
-        bind_adress = request.meta.get('bindaddress') or self._bindAddress
+        bind_address = request.meta.get('bindaddress') or self._bindAddress
         proxy = os.environ.get("SOCKS_PROXY", request.meta.get('proxy'))
         _proxy_protocol, _proxy_hostport, proxy_host, proxy_port, _proxy_params = _parse(proxy)
 

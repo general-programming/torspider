@@ -1,4 +1,4 @@
-FROM redis:4.0.6-alpine
+FROM redis:4.0.9-alpine
 
 RUN set -ex; \
     apk add --no-cache --virtual .build-deps coreutils gcc make musl-dev git; \

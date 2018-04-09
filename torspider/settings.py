@@ -16,8 +16,6 @@ from twisted.python import log
 
 BOT_NAME = 'torspider'
 
-HTTP_PROXY = 'http://127.0.0.1:8123'
-
 SPIDER_MODULES = ['torspider.spiders']
 NEWSPIDER_MODULE = 'torspider.spiders'
 
@@ -115,3 +113,5 @@ if "SOCKS_PROXY" in os.environ:
         'http': 'torspider.transports.TorDownloadHandler',
         'https': 'torspider.transports.TorDownloadHandler'
     }
+else:
+    DOWNLOADER_MIDDLEWARES["scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware"] = 1

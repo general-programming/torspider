@@ -1,9 +1,4 @@
-FROM python:3.6.4-alpine
-
-# Edge repos
-RUN echo http://dl-cdn.alpinelinux.org/alpine/edge/main > /etc/apk/repositories && \
-    echo http://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories && \
-    echo http://dl-cdn.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories
+FROM python:3.6.5-alpine
 
 # Create limited user for Celery
 RUN adduser -D -u 1000 -h /app appuser
@@ -13,7 +8,7 @@ WORKDIR /app
 
 # Requirements
 COPY requirements.txt /app/requirements.txt
-RUN apk add --no-cache build-base libffi libffi-dev ca-certificates pkgconf postgresql-dev ca-certificates libxml2-dev libxslt-dev tini libmagic && \
+RUN apk add --no-cache build-base libffi libffi-dev ca-certificates pkgconf postgresql-dev ca-certificates libxml2-dev libxslt-dev tini libmagic openssl-dev && \
 	CPPFLAGS=-I/usr/include/libxml2 pip3 install -r /app/requirements.txt
 
 # Add code
