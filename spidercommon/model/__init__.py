@@ -11,7 +11,7 @@ import brotli
 from sqlalchemy import (ARRAY, Boolean, Column, DateTime, ForeignKey, Integer,
                         LargeBinary, String, Unicode, UnicodeText, and_,
                         create_engine, func)
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, insert
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (relationship, scoped_session, sessionmaker,
                             validates)
@@ -90,7 +90,7 @@ class Page(Base):
     id = Column(Integer, primary_key=True)
     domain_id = Column(ForeignKey("domains.id"), nullable=False)
 
-    url = Column(Unicode, nullable=False)
+    url = Column(Unicode, nullable=False, unique=True)
     path = Column(Unicode)
 
     first_crawl = Column(DateTime(), nullable=False, default=now)
@@ -110,13 +110,15 @@ class Page(Base):
 
         if not page:
             domain = Domain.find_stub_by_url(url, db)
-            if lock_single(redis, "page:" + md5(url)):
-                page = cls(url=url, domain_id=domain.id)
-                db.add(page)
-                db.commit()
-            else:
-                time.sleep(1)
-                page = db.query(Page).filter(Page.url == url).scalar()
+            parsed = ParsedURL(url)
+
+            statement = insert(Page).values(
+                url=url,
+                domain_id=domain.id,
+                path=parsed.path,
+            ).on_conflict_do_nothing(index_elements=["url"])
+            db.execute(statement)
+            page = cls.find_stub_by_url(url, db)
 
         return page
 

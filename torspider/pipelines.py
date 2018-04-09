@@ -46,23 +46,7 @@ class DatabasePipeline(object):
         db.commit()
 
         # Get or create page.
-        page = db.query(Page).filter(Page.url == item["url"]).scalar()
-
-        if not page:
-            if lock_single(self.redis, "page:" + md5(item["url"])):
-                page = Page(
-                    url=item["url"],
-                    domain_id=domain.id,
-                    title=item["title"],
-                    status_code=item["status_code"],
-                    last_crawl=now,
-                    is_frontpage=item["frontpage"],
-                    path=parsed.path
-                )
-                db.add(page)
-            else:
-                time.sleep(1.5)
-                page = db.query(Page).filter(Page.url == item["url"]).scalar()
+        page = Page.find_stub_by_url(item["url"], db])
 
         # Update domain information.
         page.status_code = item["status_code"]
@@ -70,6 +54,9 @@ class DatabasePipeline(object):
         page.header_server = item["server"]
         page.header_powered_by = item["powered_by"]
         page.title = item["title"]
+
+        if page.is_frontpage != item["frontpage"]:
+            page.is_frontpage = item["frontpage"]
 
         # Update links to.
         page.links_to = list(item["links_to"])
