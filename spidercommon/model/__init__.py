@@ -216,7 +216,7 @@ class Domain(Base):
 
         # Try not to scrape dead sites.
         if not self.alive:
-            priority -= 1
+            priority -= 10
 
         # -2 points each for each failed crawl.
         try:
