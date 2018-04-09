@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import time
 from datetime import datetime
 
 from scrapy.exceptions import DropItem
@@ -88,7 +87,6 @@ class FilePipeline(object):
                 path=parsed.path
             ).on_conflict_do_nothing(index_elements=["url"])
             db.execute(statement)
-            time.sleep(1)
             file_row = db.query(File).filter(File.url == item["url"]).scalar()
 
         # Update file information.
