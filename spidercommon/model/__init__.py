@@ -102,29 +102,7 @@ class Page(Base):
     title = Column(Unicode, default="")
     links_to = Column(ARRAY(String), default=[])
 
-    _content = Column("content", LargeBinary)
-
     domain = relationship("Domain")
-
-    @property
-    def content(self) -> Union[str, bytes]:
-        if not self._content:
-            return ""
-
-        decompressed = brotli.decompress(self._content)
-        try:
-            decompressed = decompressed.decode("utf8")
-        except UnicodeDecodeError:
-            pass
-
-        return decompressed
-
-    @content.setter
-    def content(self, content: Union[str, bytes]):
-        if isinstance(content, str):
-            content = content.encode("utf8")
-
-        self._content = brotli.compress(content)
 
     @classmethod
     def find_stub_by_url(cls, url: str, db):
