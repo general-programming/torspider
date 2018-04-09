@@ -56,7 +56,6 @@ def wipe_blacklisted():
                 file_store = HashedFile.from_hash(file_obj.file_hash)
                 file_store.write(BLACKLISTED_BLANK)
                 file_obj.content = BLACKLISTED_BLANK
-            db.commit()
 
 
 @celery.task(base=WorkerTask)
@@ -71,7 +70,6 @@ def domain_cron():
             # Mark the domain as dead if there has been no crawls for a week.
             if time_hours > (24 * 7):
                 domain.is_alive = False
-                db.commit()
 
             # Dirty exponential that guarantees that the function runs by the time last crawl reaches 4 days, 20 hours.
             probablity = (10 ** (1 / 58)) ** time_hours
