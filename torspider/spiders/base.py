@@ -1,6 +1,5 @@
 # coding=utf-8
 import json
-import logging
 import os
 import re
 import traceback
@@ -18,8 +17,6 @@ from spidercommon.model import Domain, Page
 from spidercommon.urls import ParsedURL
 from spidercommon.util.distribution import queue_url
 from spidercommon.util.hashing import md5
-
-logger = logging.getLogger(__name__)
 
 
 class SpiderBase(RedisSpider):
@@ -240,5 +237,5 @@ class SpiderBase(RedisSpider):
             self.server.incr("timeouts:" + md5(parsed.host), 1)
             self.server.expire("timeouts:" + md5(parsed.host), 60 * 60 * 24)
         elif exception:
-            logging.error("Caught unhandled exception in spider.")
-            logging.error(traceback.format_exc())
+            self.logger.error("Caught unhandled exception in spider.")
+            self.logger.error(traceback.format_exc())

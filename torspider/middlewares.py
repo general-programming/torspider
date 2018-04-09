@@ -5,7 +5,6 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
-import logging
 import time
 import traceback
 
@@ -20,8 +19,6 @@ from spidercommon.model import Domain
 from spidercommon.redis import create_redis
 from spidercommon.urls import ParsedURL
 from spidercommon.util.hashing import md5
-
-logger = logging.getLogger(__name__)
 
 MAX_PAGES_SCRIPT = """
 local domain = ARGV[1]
@@ -39,7 +36,6 @@ end
 
 class FilterDomainByPageLimitMiddleware(object):
     def __init__(self, max_pages):
-        logger.info("FilterDomainbyPageLimitMiddleware loaded with MAX_PAGES_PER_DOMAIN = %d", max_pages)
         self.max_pages = max_pages
         self.redis = create_redis()
         self.pages_script = self.redis.register_script(MAX_PAGES_SCRIPT)
@@ -48,6 +44,8 @@ class FilterDomainByPageLimitMiddleware(object):
     def from_crawler(cls, crawler):
         settings = crawler.settings
         max_pages = settings.get('MAX_PAGES_PER_DOMAIN')
+        if crawler.spider:
+            crawler.spider.logger.info("FilterDomainbyPageLimitMiddleware loaded with MAX_PAGES_PER_DOMAIN = %d", max_pages)
 
         return cls(max_pages)
 
@@ -107,8 +105,8 @@ class ExceptionHandlerMiddleware(object):
             self.redis.incr("timeouts:" + md5(parsed.host), 1)
             self.redis.expire("timeouts:" + md5(parsed.host), 60 * 60 * 24)
         elif exception:
-            logging.error("Caught unhandled exception in handler.")
-            logging.error(traceback.format_exc())
+            spider.logger.error("Caught unhandled exception in handler.")
+            spider.logger.error(traceback.format_exc())
 
         return None
 
@@ -246,12 +244,12 @@ class RedisCustomDupeFilter(BaseDupeFilter):
         """
         if self.debug:
             msg = "Filtered duplicate request: %(request)s"
-            logger.debug(msg, {'request': request}, extra={'spider': spider})
+            spider.logger.debug(msg, {'request': request}, extra={'spider': spider})
         elif self.logdupes:
             msg = ("Filtered duplicate request %(request)s"
                    " - no more duplicates will be shown"
                    " (see DUPEFILTER_DEBUG to show all duplicates)")
-            logger.debug(msg, {'request': request}, extra={'spider': spider})
+            spider.logger.debug(msg, {'request': request}, extra={'spider': spider})
             self.logdupes = False
 
 
