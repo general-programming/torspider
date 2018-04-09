@@ -46,7 +46,7 @@ class DatabasePipeline(object):
         db.commit()
 
         # Get or create page.
-        page = Page.find_stub_by_url(item["url"], db])
+        page = Page.find_stub_by_url(item["url"], db)
 
         # Update domain information.
         page.status_code = item["status_code"]
