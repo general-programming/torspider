@@ -48,6 +48,7 @@ SPIDER_MIDDLEWARES = {
 DOWNLOADER_MIDDLEWARES = {
     'torspider.middlewares.FilterTooManySubdomainsMiddleware': 300,
     'torspider.middlewares.FilterDomainByPageLimitMiddleware': 550,
+    'torspider.middlewares.ExceptionHandlerMiddleware': 900,
 }
 
 # Enable or disable extensions
