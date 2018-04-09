@@ -66,7 +66,8 @@ class FilterDomainByPageLimitMiddleware(object):
 
     def process_exception(self, request, exception, spider):
         parsed = ParsedURL(request.url)
-        self.redis.hincrby("spider:pagecount", parsed.host, -1)
+        if exception:
+            self.redis.hincrby("spider:pagecount", parsed.host, -1)
 
         return None
 
