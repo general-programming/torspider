@@ -34,7 +34,7 @@ def check_ports_for_all_domains(ports: Optional[List[int]]=None):
                 check_page(redis, domain.host, port)
 
 
-def check_page(redis: StrictRedis, host: str, port: int=80, path: str="", single: bool=False):
+def check_page(redis: StrictRedis, host: str, port: int=80, path: str="", single: bool=False, priority: int=0):
     if port == 80:
         joined_url = f"http://{host}"
     else:
@@ -47,7 +47,7 @@ def check_page(redis: StrictRedis, host: str, port: int=80, path: str="", single
 
     joined_url = urljoin(joined_url, path)
 
-    queue_url(redis, 0, queue_name, joined_url)
+    queue_url(redis, priority, queue_name, joined_url)
 
 
 def find_onions(redis: StrictRedis, content: str):

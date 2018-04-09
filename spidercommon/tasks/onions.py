@@ -14,6 +14,7 @@ from spidercommon.model import (Domain, File, OnionBlacklist, Page,
                                 session_scope)
 from spidercommon.regexes import onion_regex
 from spidercommon.tasks import WorkerTask, celery
+from spidercommon.tasks.pages import check_page
 from spidercommon.util.compat import random
 from spidercommon.util.distribution import queue_url
 from spidercommon.util.hashing import md5, sha256
@@ -83,7 +84,4 @@ def domain_cron():
                 probablity = (10 ** (1 / 420)) ** time_hours
 
             if probablity > random.randint(0, 100):
-                if domain.port == 80:
-                    queue_url(redis, domain.priority, "torlink", f"http://{domain.host}")
-                else:
-                    queue_url(redis, domain.priority, "torlink", f"http://{domain.host}:{domain.port}")
+                check_page(redis, domain.host, domain.port, single=True, priority=domain.priority)
