@@ -239,6 +239,6 @@ class SpiderBase(RedisSpider):
         if isinstance(exception, TwistedTimeoutError):
             self.server.incr("timeouts:" + md5(parsed.host), 1)
             self.server.expire("timeouts:" + md5(parsed.host), 60 * 60 * 24)
-        else:
+        elif exception:
             logging.error("Caught unhandled exception in spider.")
             logging.error(traceback.format_exc())

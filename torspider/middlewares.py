@@ -105,7 +105,7 @@ class ExceptionHandlerMiddleware(object):
         if isinstance(exception, TwistedTimeoutError):
             self.redis.incr("timeouts:" + md5(parsed.host), 1)
             self.redis.expire("timeouts:" + md5(parsed.host), 60 * 60 * 24)
-        else:
+        elif exception:
             logging.error("Caught unhandled exception in handler.")
             logging.error(traceback.format_exc())
 
