@@ -6,7 +6,10 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 import logging
+import traceback
 import time
+
+from twisted.internet.error import TimeoutError as TwistedTimeoutError
 
 from scrapy import signals
 from scrapy.dupefilters import BaseDupeFilter
@@ -17,7 +20,9 @@ from scrapy_redis.connection import get_redis_from_settings
 from spidercommon.model import Domain
 from spidercommon.redis import create_redis
 from spidercommon.urls import ParsedURL
+from spidercommon.util.hashing import md5
 
+logger = logging.getLogger(__name__)
 
 MAX_PAGES_SCRIPT = """
 local domain = ARGV[1]
@@ -35,7 +40,6 @@ end
 
 class FilterDomainByPageLimitMiddleware(object):
     def __init__(self, max_pages):
-        logger = logging.getLogger()
         logger.info("FilterDomainbyPageLimitMiddleware loaded with MAX_PAGES_PER_DOMAIN = %d", max_pages)
         self.max_pages = max_pages
         self.redis = create_redis()
@@ -86,6 +90,29 @@ class FilterTooManySubdomainsMiddleware(object):
         return None
 
 
+class ExceptionHandlerMiddleware(object):
+    def __init__(self):
+        self.redis = create_redis()
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        settings = crawler.settings
+
+        return cls()
+
+    def process_exception(self, request, exception, spider):
+        parsed = ParsedURL(request.url)
+
+        if isinstance(exception, TwistedTimeoutError):
+            self.redis.incr("timeouts:" + md5(parsed.host), 1)
+            self.redis.expire("timeouts:" + md5(parsed.host), 60 * 60 * 24)
+        else:
+            logging.error("Caught unhandled exception in handler.")
+            logging.error(traceback.format_exc())
+
+        return None
+
+
 class RedisCustomDupeFilter(BaseDupeFilter):
     """
     See https://github.com/rmax/scrapy-redis/blob/master/src/scrapy_redis/dupefilter.py for original code.
@@ -111,7 +138,6 @@ class RedisCustomDupeFilter(BaseDupeFilter):
         self.key = "dupefilter"
         self.debug = debug
         self.logdupes = True
-        self.logger = logging.getLogger()
 
     @classmethod
     def from_settings(cls, settings):
@@ -220,12 +246,12 @@ class RedisCustomDupeFilter(BaseDupeFilter):
         """
         if self.debug:
             msg = "Filtered duplicate request: %(request)s"
-            self.logger.debug(msg, {'request': request}, extra={'spider': spider})
+            logger.debug(msg, {'request': request}, extra={'spider': spider})
         elif self.logdupes:
             msg = ("Filtered duplicate request %(request)s"
                    " - no more duplicates will be shown"
                    " (see DUPEFILTER_DEBUG to show all duplicates)")
-            self.logger.debug(msg, {'request': request}, extra={'spider': spider})
+            logger.debug(msg, {'request': request}, extra={'spider': spider})
             self.logdupes = False
 
 
