@@ -54,8 +54,8 @@ beat_schedule = {
         "task": "spidercommon.tasks.onions.wipe_blacklisted",
         "schedule": crontab(minute=0, hour="*/6"),
     },
-    "alive_check": {
-        "task": "spidercommon.tasks.onions.queue_alivecheck",
+    "domain_cron": {
+        "task": "spidercommon.tasks.onions.domain_cron",
         "schedule": crontab(minute=0, hour="*/3"),
     },
 }

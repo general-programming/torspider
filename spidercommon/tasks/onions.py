@@ -60,13 +60,18 @@ def wipe_blacklisted():
 
 
 @celery.task(base=WorkerTask)
-def queue_alivecheck():
-    redis = queue_alivecheck.redis
+def domain_cron():
+    redis = domain_cron.redis
 
     with session_scope() as db:
         for domain in db.query(Domain).filter(Domain.blacklisted == False).yield_per(500):
             time_delta = datetime.datetime.utcnow() - domain.last_crawl
             time_hours = (time_delta.total_seconds() / 60) / 24
+
+            # Mark the domain as dead if there has been no crawls for a week.
+            if time_hours > (24 * 7):
+                domain.is_alive = False
+                db.commit()
 
             # Dirty exponential that guarantees that the function runs by the time last crawl reaches 4 days, 20 hours.
             probablity = (10 ** (1 / 58)) ** time_hours
