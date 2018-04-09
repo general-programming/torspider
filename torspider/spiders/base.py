@@ -1,9 +1,9 @@
 # coding=utf-8
-import logging
 import json
+import logging
 import os
-import traceback
 import re
+import traceback
 from urllib.parse import urljoin
 
 import magic

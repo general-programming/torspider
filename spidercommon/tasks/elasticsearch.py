@@ -3,7 +3,7 @@ import json
 
 import elasticsearch
 
-from spidercommon.model import Page, File, session_scope
+from spidercommon.model import File, Page, session_scope
 from spidercommon.model.elasticsearch import (PageDocument, get_client,
                                               get_index)
 from spidercommon.tasks import WorkerTask, celery

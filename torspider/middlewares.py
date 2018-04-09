@@ -6,16 +6,15 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 import logging
-import traceback
 import time
-
-from twisted.internet.error import TimeoutError as TwistedTimeoutError
+import traceback
 
 from scrapy import signals
 from scrapy.dupefilters import BaseDupeFilter
 from scrapy.exceptions import IgnoreRequest
 from scrapy.utils.request import request_fingerprint
 from scrapy_redis.connection import get_redis_from_settings
+from twisted.internet.error import TimeoutError as TwistedTimeoutError
 
 from spidercommon.model import Domain
 from spidercommon.redis import create_redis

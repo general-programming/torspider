@@ -1,7 +1,9 @@
 import time
-from spidercommon.model import sm, Page, File
-from spidercommon.util.storage import HashedFile
+
 from sqlalchemy.dialects.postgresql import insert
+
+from spidercommon.model import File, Page, sm
+from spidercommon.util.storage import HashedFile
 
 db = sm()
 db_adder = sm()
