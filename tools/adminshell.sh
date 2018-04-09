@@ -9,7 +9,7 @@ unset HTTPS_PROXY
 if [ -d "/app/torspider" ]; then
     # Container
     apk update
-    apk add postgresql-client redis zsh busybox-extras nano less
+    apk add postgresql-client redis zsh nano less
     pip install pyreadline ipython
     echo "alias redis-cli='redis-cli -h $REDIS_HOST -p $REDIS_PORT'" >> ~/.zshrc
     zsh -i
