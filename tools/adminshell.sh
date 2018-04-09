@@ -8,9 +8,18 @@ unset HTTPS_PROXY
 # Assuming code for the dev setup is not kept in /app/torspider, we should be fine.
 if [ -d "/app/torspider" ]; then
     # Container
+    # It helps to have the HTTP url for pulling and SSH url for pushing since keys are not copied.
+
+    # Install admin tools.
     apk update
-    apk add postgresql-client redis zsh nano less
+    apk add postgresql-client redis zsh nano less git
     pip install pyreadline ipython
+
+    # Uninstall and reinstall as a development environment.
+    pip uninstall -y torspider
+    python setup.py develop
+
+    # Setup aliases and drop to a shell.
     echo "alias redis-cli='redis-cli -h $REDIS_HOST -p $REDIS_PORT'" >> ~/.zshrc
     zsh -i
 else
